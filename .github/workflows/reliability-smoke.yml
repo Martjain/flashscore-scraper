@@ -1,0 +1,61 @@
+name: Reliability Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: "How many fixtures to execute"
+        required: false
+        default: "2"
+      max_matches:
+        description: "Matches checked per fixture"
+        required: false
+        default: "1"
+      fixture:
+        description: "Optional fixture id filter (e.g. usa-mls)"
+        required: false
+        default: ""
+  schedule:
+    - cron: "15 6 * * 1"
+
+jobs:
+  reliability-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run reliability smoke
+        run: |
+          EXTRA_ARGS=""
+          if [ -n "${{ github.event.inputs.fixture || '' }}" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS --fixture ${{ github.event.inputs.fixture }}"
+          fi
+          npm run smoke:reliability -- \
+            --sample "${{ github.event.inputs.sample || '2' }}" \
+            --max-matches "${{ github.event.inputs.max_matches || '1' }}" \
+            $EXTRA_ARGS
+
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reliability-smoke-artifacts
+          path: .planning/artifacts/smoke/
+          if-no-files-found: warn
+          retention-days: 14
+
