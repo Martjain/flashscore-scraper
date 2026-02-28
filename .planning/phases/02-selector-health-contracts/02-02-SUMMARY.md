@@ -116,7 +116,7 @@ None - no external service configuration required.
 
 ## Self-Check
 - ✅ `node --check src/selector-health/health-check/runSelectorHealthCheck.js src/selector-health/health-check/reporting.js src/selector-health/health-check/retention.js scripts/health-selectors.mjs` passed.
-- ✅ `npm run health:selectors -- --scope countries --scope leagues --scope seasons --scope match-list --scope match-detail --sample 1 --fail-fast` passed.
+- ✅ `npm run health:selectors -- --scope countries --scope leagues --scope seasons --scope match-list --scope match-detail --sample 1` passed.
 - ✅ `npm run health:selectors -- --dry-run --scope countries --sample 1` passed.
 - ✅ `npm run health:selectors -- --strict --scope match-list --sample 1` passed.
 - ✅ `.planning/artifacts/selector-health/latest.json` generated.
