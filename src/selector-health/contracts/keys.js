@@ -1,0 +1,31 @@
+export const SELECTOR_HEALTH_SCOPES = Object.freeze({
+  COUNTRIES: "countries",
+  LEAGUES: "leagues",
+  SEASONS: "seasons",
+  MATCH_LIST: "match-list",
+  MATCH_DETAIL: "match-detail",
+});
+
+export const SELECTOR_CONTRACT_KEYS = Object.freeze({
+  COUNTRIES: "countries.links",
+  LEAGUES: "leagues.links",
+  SEASONS: "seasons.links",
+  MATCH_LIST: "match-list.rows",
+  MATCH_DETAIL: "match-detail.core",
+});
+
+export const CRITICAL_SELECTOR_SCOPE_ORDER = Object.freeze([
+  SELECTOR_HEALTH_SCOPES.COUNTRIES,
+  SELECTOR_HEALTH_SCOPES.LEAGUES,
+  SELECTOR_HEALTH_SCOPES.SEASONS,
+  SELECTOR_HEALTH_SCOPES.MATCH_LIST,
+  SELECTOR_HEALTH_SCOPES.MATCH_DETAIL,
+]);
+
+export const CRITICAL_SELECTOR_KEYS = Object.freeze([
+  SELECTOR_CONTRACT_KEYS.COUNTRIES,
+  SELECTOR_CONTRACT_KEYS.LEAGUES,
+  SELECTOR_CONTRACT_KEYS.SEASONS,
+  SELECTOR_CONTRACT_KEYS.MATCH_LIST,
+  SELECTOR_CONTRACT_KEYS.MATCH_DETAIL,
+]);
