@@ -40,13 +40,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (pending roadmap mapping) | - | Pending |
+| RELY-10 | Phase 7 | Pending |
+| RELY-11 | Phase 8 | Pending |
 
 **Coverage:**
 - v1 requirements: 2 total
-- Mapped to phases: 0
-- Unmapped: 2 ⚠️
+- Mapped to phases: 2
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after initial v1.3 definition*
+*Last updated: 2026-02-28 after roadmap mapping for v1.3*
