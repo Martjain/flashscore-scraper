@@ -105,6 +105,22 @@ Run bounded end-to-end smoke (country -> league -> season -> match):
 npm run smoke:reliability -- --sample 2 --max-matches 1
 ```
 
+Matrix mode controls (default remains bounded):
+
+```bash
+# Default bounded selection (same behavior as prior releases)
+npm run smoke:reliability -- --sample 2 --matrix-mode default
+
+# Extended deterministic regional rotation
+npm run smoke:reliability -- --sample 2 --matrix-mode extended --rotation-key 2026-W09
+```
+
+Environment-backed controls (used by CI schedule path):
+
+```bash
+RELIABILITY_SMOKE_MATRIX_MODE=extended RELIABILITY_SMOKE_ROTATION_KEY=2026-W09 npm run smoke:reliability -- --sample 2
+```
+
 Dry run (no browser/network):
 
 ```bash
@@ -142,6 +158,13 @@ Smoke artifacts:
 - `.planning/artifacts/smoke/latest.json`
 - `.planning/artifacts/smoke/schema-input-latest.json`
 - Timestamped history files under `.planning/artifacts/smoke/`
+
+Extended artifacts include a `selection` block with deterministic provenance:
+
+- `selection.mode` / `selection.requestedMode`
+- `selection.rotationKey`
+- `selection.selectedRegion` + `selection.regionToken`
+- `selection.fixtureIds` + `selection.reason`
 
 ## Failure Alerts
 
@@ -183,12 +206,20 @@ Triggers:
 - Weekly `schedule`
 
 The job installs dependencies + Playwright Chromium, runs `npm run smoke:reliability`, and uploads smoke artifacts for both pass/fail runs.
+Scheduled executions automatically set:
+
+- `RELIABILITY_SMOKE_MATRIX_MODE=extended`
+- `RELIABILITY_SMOKE_ROTATION_KEY=$(date -u +%G-W%V)` (ISO week token)
+
+`workflow_dispatch` remains bounded by default (`matrix_mode=default`) unless operators explicitly choose extended mode and/or provide a custom rotation key.
 When `RELIABILITY_ALERT_WEBHOOK_URL` is configured as a repository secret, CI smoke failures can emit webhook alerts.
 
 `workflow_dispatch` inputs also support:
 
 - `rerun_failed=true` to run rerun mode from artifact failures.
 - `artifact=<path>` to override the artifact path used by rerun mode.
+- `matrix_mode=default|extended` to control selection strategy.
+- `rotation_key=<token>` to force deterministic extended selection.
 
 ## Output Shape
 
