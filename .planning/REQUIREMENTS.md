@@ -9,7 +9,7 @@ Requirements for milestone v1.3 Reliability Signal Quality. Each requirement map
 
 ### Alert Signal Controls
 
-- [ ] **RELY-10**: Operator can configure alert deduplication/cooldown policies so repeated identical failures within a configured window are suppressed while first-occurrence alerts are preserved.
+- [x] **RELY-10**: Operator can configure alert deduplication/cooldown policies so repeated identical failures within a configured window are suppressed while first-occurrence alerts are preserved.
 
 ### Reliability Trend Reporting
 
@@ -40,7 +40,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RELY-10 | Phase 7 | Pending |
+| RELY-10 | Phase 7 | Complete |
 | RELY-11 | Phase 8 | Pending |
 
 **Coverage:**

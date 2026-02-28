@@ -89,8 +89,8 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 ### 🚧 v1.3 Reliability Signal Quality (Planned)
 
-- [ ] Phase 7: Alert Signal Controls (0/2 plans)
-  - [ ] 07-01: Implement alert signature normalization and cooldown policy evaluation
+- [ ] Phase 7: Alert Signal Controls (1/2 plans)
+  - [x] 07-01: Implement alert signature normalization and cooldown policy evaluation
   - [ ] 07-02: Wire dedupe decisions into notifier flow and diagnostics artifacts
 
 - [ ] Phase 8: Reliability Trend Summaries (0/2 plans)
