@@ -184,10 +184,31 @@ export const sendFailureAlert = async ({
     };
   }
 
+  const dedupe = evaluateFailureAlertEmission({
+    source,
+    result,
+    env,
+  });
+  if (dedupe.decision === "suppress") {
+    return {
+      attempted: false,
+      sent: false,
+      skipped: false,
+      suppressed: true,
+      gate,
+      dedupe,
+      payload: null,
+      statusCode: null,
+      error: null,
+      durationMs: 0,
+    };
+  }
+
   const payload = buildFailureAlertPayload({
     source,
     result,
     metadata,
+    dedupe,
   });
   const publishResult = await publishFailureAlert({
     payload,
@@ -200,7 +221,9 @@ export const sendFailureAlert = async ({
     ...publishResult,
     attempted: true,
     skipped: false,
+    suppressed: false,
     gate,
+    dedupe,
     payload,
   };
 };

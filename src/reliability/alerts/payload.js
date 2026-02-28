@@ -210,10 +210,31 @@ const buildGenericPayload = (result = {}) => ({
   diagnostics: {},
 });
 
+const buildSuppressionSummaryText = (dedupe = null) => {
+  const count = Number(dedupe?.suppressionSummary?.suppressedCount || 0);
+  if (count <= 0) return null;
+
+  const firstSuppressedAt = asTrimmedString(
+    dedupe?.suppressionSummary?.firstSuppressedAt
+  );
+  const lastSuppressedAt = asTrimmedString(
+    dedupe?.suppressionSummary?.lastSuppressedAt
+  );
+  const cooldownUntil = asTrimmedString(dedupe?.suppressionSummary?.cooldownUntil);
+  const boundaries = [firstSuppressedAt, lastSuppressedAt, cooldownUntil]
+    .filter(Boolean)
+    .join(" -> ");
+
+  return boundaries
+    ? `${count} duplicates suppressed (${boundaries})`
+    : `${count} duplicates suppressed in prior cooldown window`;
+};
+
 export const buildFailureAlertPayload = ({
   source,
   result = {},
   metadata = {},
+  dedupe = null,
 } = {}) => {
   const normalizedSource = normalizeSource(source);
   const completedAt = toIsoUtc(result.completedAt);
@@ -227,6 +248,10 @@ export const buildFailureAlertPayload = ({
       : normalizedSource === SOURCE_SELECTOR_HEALTH
         ? buildSelectorPayload(result, metadata)
         : buildGenericPayload(result);
+  const suppressionSummaryText = buildSuppressionSummaryText(dedupe);
+  const summary = suppressionSummaryText
+    ? `${sourcePayload.summary} | ${suppressionSummaryText}`
+    : sourcePayload.summary;
 
   return {
     payloadVersion: PAYLOAD_VERSION,
@@ -234,7 +259,7 @@ export const buildFailureAlertPayload = ({
     source: normalizedSource,
     runId,
     result: "fail",
-    summary: sourcePayload.summary,
+    summary,
     failureCode: sourcePayload.failureCode,
     timestamps: {
       startedAt,
@@ -247,5 +272,15 @@ export const buildFailureAlertPayload = ({
     metrics: sourcePayload.metrics,
     references: buildReferences(metadata),
     diagnostics: sourcePayload.diagnostics,
+    dedupe: dedupe
+      ? {
+          decision: dedupe.decision || null,
+          reason: dedupe.reason || null,
+          signatureKey: dedupe.signatureKey || null,
+          cooldownMs: Number(dedupe.policy?.effective?.cooldownMs || 0) || null,
+          state: dedupe.state || null,
+          suppressionSummary: dedupe.suppressionSummary || null,
+        }
+      : null,
   };
 };
