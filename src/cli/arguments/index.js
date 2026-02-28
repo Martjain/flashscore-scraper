@@ -62,6 +62,11 @@ const SUPPORTED_SELECTOR_HEALTH_SCOPES = Object.freeze([
 const DEFAULT_SMOKE_SAMPLE = 3;
 const DEFAULT_SMOKE_MAX_MATCHES = 1;
 const DEFAULT_SMOKE_TIMEOUT_MS = 90000;
+const DEFAULT_SMOKE_MATRIX_MODE = "default";
+const SUPPORTED_SMOKE_MATRIX_MODES = Object.freeze([
+  DEFAULT_SMOKE_MATRIX_MODE,
+  "extended",
+]);
 
 const parseOptionValue = (args, index, flagName) => {
   const arg = args[index];
@@ -90,6 +95,18 @@ const parsePositiveInteger = (value, flagName) => {
 
 const parseBooleanFlag = (arg, flagName) =>
   arg === flagName || arg.startsWith(`${flagName}=`);
+
+const parseSmokeMatrixMode = (value, sourceLabel) => {
+  const normalized = value?.toString().trim().toLowerCase();
+  if (!normalized) return DEFAULT_SMOKE_MATRIX_MODE;
+  if (!SUPPORTED_SMOKE_MATRIX_MODES.includes(normalized)) {
+    throw Error(
+      `❌ Invalid ${sourceLabel}: "${value}"\n` +
+        `Accepted values are: ${SUPPORTED_SMOKE_MATRIX_MODES.join(", ")}`
+    );
+  }
+  return normalized;
+};
 
 export const parseSelectorHealthArguments = (rawArgs = process.argv.slice(2)) => {
   const options = {
@@ -154,8 +171,11 @@ export const parseSelectorHealthArguments = (rawArgs = process.argv.slice(2)) =>
 };
 
 export const parseSmokeReliabilityArguments = (
-  rawArgs = process.argv.slice(2)
+  rawArgs = process.argv.slice(2),
+  env = process.env
 ) => {
+  const envMatrixMode = env.RELIABILITY_SMOKE_MATRIX_MODE;
+  const envRotationKey = env.RELIABILITY_SMOKE_ROTATION_KEY;
   const options = {
     sample: DEFAULT_SMOKE_SAMPLE,
     maxMatches: DEFAULT_SMOKE_MAX_MATCHES,
@@ -163,6 +183,8 @@ export const parseSmokeReliabilityArguments = (
     fixtureIds: [],
     rerunFailed: false,
     artifact: null,
+    matrixMode: parseSmokeMatrixMode(envMatrixMode, "RELIABILITY_SMOKE_MATRIX_MODE"),
+    rotationKey: envRotationKey?.toString().trim() || null,
     dryRun: false,
     quiet: false,
     report: null,
@@ -219,6 +241,22 @@ export const parseSmokeReliabilityArguments = (
       }
       options.artifact = normalized;
       if (arg === "--artifact") index += 1;
+    }
+
+    if (arg === "--matrix-mode" || arg.startsWith("--matrix-mode=")) {
+      const value = parseOptionValue(rawArgs, index, "--matrix-mode");
+      options.matrixMode = parseSmokeMatrixMode(value, "--matrix-mode");
+      if (arg === "--matrix-mode") index += 1;
+    }
+
+    if (arg === "--rotation-key" || arg.startsWith("--rotation-key=")) {
+      const value = parseOptionValue(rawArgs, index, "--rotation-key");
+      const normalized = value?.trim();
+      if (!normalized) {
+        throw Error("❌ Invalid --rotation-key value: expected non-empty string");
+      }
+      options.rotationKey = normalized;
+      if (arg === "--rotation-key") index += 1;
     }
   }
 
