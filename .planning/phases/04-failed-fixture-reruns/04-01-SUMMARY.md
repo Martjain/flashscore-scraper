@@ -78,7 +78,7 @@ None - no external service configuration required.
 - Plan `04-02` can now inject rerun preflight output into smoke execution flow.
 - Rerun preflight diagnostics are available to support operator-facing fallback messaging.
 
-## Self-Check
+## Validation Evidence
 - ✅ `node --check src/reliability/smoke/rerun-fixtures.js src/reliability/smoke/fixture-matrix.js src/cli/arguments/index.js` passed.
 - ✅ `node -e "import('./src/reliability/smoke/rerun-fixtures.js').then(m=>{if(!m)process.exit(1);}).catch(()=>process.exit(1));"` passed.
 - ✅ `node -e "import('./src/cli/arguments/index.js').then(m=>{const o=m.parseSmokeReliabilityArguments(['--rerun-failed']);if(!o.rerunFailed)process.exit(1);}).catch(()=>process.exit(1));"` passed.
@@ -86,3 +86,6 @@ None - no external service configuration required.
 ---
 *Phase: 04-failed-fixture-reruns*
 *Completed: 2026-02-28*
+
+## Self-Check
+All checks passed.

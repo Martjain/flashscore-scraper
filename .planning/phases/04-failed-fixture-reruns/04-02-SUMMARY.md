@@ -93,7 +93,7 @@ None - no external service configuration required.
 - Phase 4 implementation is complete and ready for phase-level verification.
 - Requirement `RELY-07` behavior is wired, documented, and operational for local + workflow dispatch runs.
 
-## Self-Check
+## Validation Evidence
 - ✅ `node --check scripts/smoke-reliability.mjs` passed.
 - ✅ `npm run smoke:reliability -- --dry-run --rerun-failed` passed with a valid failed-fixture artifact.
 - ✅ `npm run smoke:reliability -- --dry-run --rerun-failed --artifact /tmp/non-existent-smoke-artifact.json` returned non-zero with fallback guidance.
@@ -103,3 +103,6 @@ None - no external service configuration required.
 ---
 *Phase: 04-failed-fixture-reruns*
 *Completed: 2026-02-28*
+
+## Self-Check
+All checks passed.
