@@ -1,0 +1,56 @@
+# Requirements: FlashscoreScraping
+
+**Defined:** 2026-02-28
+**Core Value:** Users can reliably extract structured league match results and statistics into reusable local data files with stable schema contracts.
+
+## v1 Requirements
+
+Requirements for milestone v1.2 Reliability Operations. Each maps to exactly one roadmap phase.
+
+### Recovery Workflow
+
+- [ ] **RELY-07**: User can rerun reliability smoke for only failed fixtures from the latest smoke artifact without manually enumerating fixture IDs.
+
+### Alerting
+
+- [ ] **RELY-08**: User can receive chat/webhook alerts for smoke or selector-health failures that include run ID, failure stage, and affected fixture/scope identifiers.
+
+### Coverage Expansion
+
+- [ ] **RELY-09**: User can execute a rotating extended smoke matrix grouped by region on scheduled runs while keeping default smoke runtime bounded for routine CI.
+
+## v2 Requirements
+
+Deferred beyond milestone v1.2.
+
+### Reliability Enhancements
+
+- **RELY-10**: User can configure alert deduplication/cooldown policies to reduce repeated notifications.
+- **RELY-11**: User can inspect trend summaries of failure rates by fixture/region over time.
+
+## Out of Scope
+
+Explicitly excluded from v1.2 scope.
+
+| Feature | Reason |
+|---------|--------|
+| Full global smoke matrix on every PR | Runtime and flake risk would degrade routine CI feedback |
+| Multi-channel escalation routing | Adds policy complexity before baseline webhook workflow is validated |
+| Automatic selector self-healing | Risks silent data corruption without explicit operator review |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| RELY-07 | TBD | Pending |
+| RELY-08 | TBD | Pending |
+| RELY-09 | TBD | Pending |
+
+**Coverage:**
+- v1 requirements: 3 total
+- Mapped to phases: 0
+- Unmapped: 3 ⚠️
+
+---
+*Requirements defined: 2026-02-28*
+*Last updated: 2026-02-28 after milestone v1.2 initialization*
