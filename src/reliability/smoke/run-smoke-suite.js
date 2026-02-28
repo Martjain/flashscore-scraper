@@ -9,8 +9,9 @@ import {
   buildLeagueUrl,
   DEFAULT_FIXTURE_TIMEOUT_MS,
   DEFAULT_MAX_MATCHES,
+  DEFAULT_SMOKE_MATRIX_MODE,
   DEFAULT_SMOKE_SAMPLE,
-  selectSmokeFixtures,
+  selectSmokeFixtureSelection,
 } from "./fixture-matrix.js";
 
 const normalizePositiveInteger = (value, fallback) =>
@@ -416,7 +417,18 @@ export const runSmokeSuite = async (options = {}) => {
   );
   const dryRun = Boolean(options.dryRun);
   const fixtureIds = Array.isArray(options.fixtureIds) ? options.fixtureIds : [];
-  const fixtures = selectSmokeFixtures({ sample, fixtureIds });
+  const matrixMode =
+    options.matrixMode?.toString().trim().toLowerCase() ||
+    DEFAULT_SMOKE_MATRIX_MODE;
+  const rotationKey =
+    options.rotationKey?.toString().trim() || null;
+  const selectionResult = selectSmokeFixtureSelection({
+    sample,
+    fixtureIds,
+    matrixMode,
+    rotationKey,
+  });
+  const fixtures = selectionResult.fixtures;
 
   const startedAtEpoch = Date.now();
   const startedAt = new Date(startedAtEpoch).toISOString();
@@ -440,6 +452,8 @@ export const runSmokeSuite = async (options = {}) => {
       },
       diagnostics: {
         requestedFixtureIds: fixtureIds,
+        requestedMatrixMode: matrixMode,
+        requestedRotationKey: rotationKey,
       },
       matchChecks: [],
     });
@@ -478,8 +492,11 @@ export const runSmokeSuite = async (options = {}) => {
       maxMatches,
       timeoutMs,
       fixtureIds,
+      matrixMode,
+      rotationKey,
       dryRun,
     },
+    selection: selectionResult.selection,
     summary,
     fixtures: fixtureResults,
     issues,
