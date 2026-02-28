@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented in this file.
 
+## [v1.2.0] - 2026-02-28
+
+### Added
+
+- Failed-fixture rerun mode for reliability smoke:
+  - `--rerun-failed` to rerun only failed fixtures from latest smoke artifact
+  - `--artifact <path>` override for custom artifact selection
+- Reliability failure alerting for smoke and selector-health commands via webhook payloads with stable schema.
+- Deterministic rotating regional smoke matrix:
+  - `--matrix-mode default|extended`
+  - `--rotation-key <token>`
+  - Scheduled CI weekly extended mode using ISO-week rotation keys
+- Selection provenance metadata in smoke artifacts (`selection.mode`, `rotationKey`, `selectedRegion`, `fixtureIds`).
+
+### Changed
+
+- README expanded with rerun workflow, alerting configuration, matrix controls, and dispatch input docs.
+- Reliability smoke workflow dispatch now supports rerun and matrix/rotation inputs while keeping default/manual runs bounded.
+
+### Fixed
+
+- Rerun orchestration now executes full failed-fixture sets without sample truncation.
+- Null rotation key handling in matrix normalization to preserve default dry-run reliability behavior.
+
 ## [v1.1.0] - 2026-02-28
 
 ### Added
