@@ -80,9 +80,11 @@ const resolveExecutionContext = async (options = {}) => {
   }
 
   if (selection.fixtureIds.length === 0) {
+    const invalidCount = selection.diagnostics?.invalidFixtureIds?.length || 0;
+    const ignoredCount = selection.diagnostics?.ignoredFixtureIds?.length || 0;
     throw new RerunPreflightError(
       "no_rerunnable_failures",
-      `Rerun preflight failed: no rerunnable failed fixtures found in ${selection.artifactPath}.`,
+      `Rerun preflight failed: no rerunnable failed fixtures found in ${selection.artifactPath} (invalid: ${invalidCount}, ignored: ${ignoredCount}).`,
       {
         artifactPath: selection.artifactPath,
         diagnostics: selection.diagnostics,
@@ -175,6 +177,7 @@ const buildRunnerFailure = (error, options = {}) => {
         error: message,
         code: isRerunPreflight ? error.code : null,
         diagnostics: preflightDetails.diagnostics || null,
+        remediation: preflightDetails.fallbackCommand || null,
       },
     ],
     rerun: options.rerun || null,
