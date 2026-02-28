@@ -35,9 +35,20 @@ const resolveSeason = async (context, cliOptions, country) => {
 
   return {
     name: leagueName,
-    url: `${BASE_URL}/football/${country?.name}/${cliOptions.league}`.toLowerCase(),
+    url: buildLeagueSeasonUrl(country?.name, cliOptions.league),
   };
 };
+
+const buildLeagueSeasonUrl = (countryName = "", league = "") => {
+  const countrySegment = normalizePathSegment(countryName);
+  const leagueSegment = normalizePathSegment(league);
+  const origin = BASE_URL.replace(/\/+$/, "");
+
+  return `${origin}/football/${countrySegment}/${leagueSegment}`;
+};
+
+const normalizePathSegment = (value = "") =>
+  value.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
 const generateFileName = (countryName = "", seasonName = "") => {
   return `${countryName}_${seasonName}`
