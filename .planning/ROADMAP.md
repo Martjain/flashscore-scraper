@@ -9,7 +9,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 - ✅ **v1.0 Flashscore USA Migration** - shipped 2026-02-28 ([archive](.planning/milestones/v1.0-ROADMAP.md))
 - ✅ **v1.1 Reliability Hardening** - shipped 2026-02-28 ([archive](.planning/milestones/v1.1-ROADMAP.md))
 - ✅ **v1.2 Reliability Operations** - shipped 2026-02-28 ([archive](.planning/milestones/v1.2-ROADMAP.md))
-- 🚧 **v1.3 Reliability Signal Quality** - phases 7-8 (planned)
+- 🚧 **v1.3 Reliability Signal Quality** - phases 7-8 (in progress)
 
 ## Proposed Roadmap
 
@@ -87,11 +87,11 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 </details>
 
-### 🚧 v1.3 Reliability Signal Quality (Planned)
+### 🚧 v1.3 Reliability Signal Quality (In Progress)
 
-- [ ] Phase 7: Alert Signal Controls (1/2 plans)
+- [x] Phase 7: Alert Signal Controls (2/2 plans)
   - [x] 07-01: Implement alert signature normalization and cooldown policy evaluation
-  - [ ] 07-02: Wire dedupe decisions into notifier flow and diagnostics artifacts
+  - [x] 07-02: Wire dedupe decisions into notifier flow and diagnostics artifacts
 
 - [ ] Phase 8: Reliability Trend Summaries (0/2 plans)
   - [ ] 08-01: Build trend aggregation from historical smoke/selector-health artifacts
@@ -104,4 +104,4 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 | v1.0 Flashscore USA Migration | Complete | 1/1 | 2026-02-28 |
 | v1.1 Reliability Hardening | Complete | 2/2 | 2026-02-28 |
 | v1.2 Reliability Operations | Complete | 3/3 | 2026-02-28 |
-| v1.3 Reliability Signal Quality | Planned | 0/2 | - |
+| v1.3 Reliability Signal Quality | In Progress | 1/2 | - |
