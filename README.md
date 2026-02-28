@@ -92,6 +92,37 @@ npm run health:selectors -- --strict --scope match-list --scope match-detail --s
 
 By default, reports are written to `.planning/artifacts/selector-health/latest.json` and timestamped history files are retained automatically (latest + last 30 runs).
 
+## Reliability Smoke Automation
+
+Run a bounded end-to-end smoke that verifies the extraction path:
+`country -> league -> season -> match`.
+
+```bash
+npm run smoke:reliability -- --sample 2 --max-matches 1
+```
+
+Behavior notes:
+- Live smoke runs always execute a required schema gate with `npm run validate:schema -- <schema-input-file>` before reporting `RESULT: pass`.
+- Use runtime-budget flags like `--sample`, `--max-matches`, `--timeout-ms`, and `--fixture` to keep runs CI-safe.
+- Use `--dry-run` to validate fixture selection and reporting flow without browser/network work.
+
+Artifacts:
+- Smoke result: `.planning/artifacts/smoke/latest.json`
+- Schema gate input snapshot: `.planning/artifacts/smoke/schema-input-latest.json`
+- Timestamped history files are retained in `.planning/artifacts/smoke/`
+
+CI integration:
+- Workflow file: `.github/workflows/reliability-smoke.yml`
+- Triggers:
+  - `workflow_dispatch` for manual execution
+  - `schedule` for weekly automated monitoring
+
+CI-focused strict command example:
+
+```bash
+npm run smoke:reliability -- --sample 1 --max-matches 1 --fixture usa-mls --timeout-ms 120000
+```
+
 ## Data Structure
 
 Each match result includes:
