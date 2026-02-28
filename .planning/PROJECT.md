@@ -19,11 +19,14 @@ Users can reliably extract structured league match results and statistics into r
   - `npm run smoke:reliability`
   - CI workflow: `.github/workflows/reliability-smoke.yml`
 
-## Next Milestone Goals
+## Current Milestone: v1.2 Reliability Operations
 
-- Expand reliability workflows beyond baseline smoke coverage.
-- Improve recovery/triage speed for intermittent fixture failures.
-- Add proactive alerting for reliability regressions.
+**Goal:** Extend reliability tooling so failures are faster to triage, alerts are proactive, and smoke coverage rotates across regions without bloating default CI runtime.
+
+**Target features:**
+- Rerun smoke checks for only failed fixtures from prior run artifacts.
+- Add chat/webhook alerting for selector-health and smoke failures.
+- Add rotating extended smoke matrix by region while keeping the default fast suite.
 
 ## Requirements
 
@@ -42,21 +45,23 @@ Users can reliably extract structured league match results and statistics into r
 
 ### Active
 
-- [ ] **RELY-07**: Rerun smoke checks for failed fixtures only
-- [ ] **RELY-08**: Add chat/webhook alerting for reliability failures
-- [ ] **RELY-09**: Add rotating extended smoke matrix by region
+- [ ] **RELY-07**: User can rerun smoke checks for failed fixtures only, using the most recent smoke artifact without manually listing fixture IDs.
+- [ ] **RELY-08**: User can receive chat/webhook alerts for reliability failures with actionable context (run ID, failed stage, fixture IDs).
+- [ ] **RELY-09**: User can run a rotating extended smoke matrix by region on schedule while default smoke remains runtime-bounded for routine CI.
 
 ### Out of Scope
 
 - Multi-sport expansion beyond current soccer scope
 - Framework rewrite away from Node.js + Playwright
 - UI/dashboard productization in the short term
+- Autonomous selector self-healing without explicit review
 
 ## Context
 
 - Architecture: CLI orchestration + service modules (`countries`, `leagues`, `seasons`, `matches`) + reliability modules
 - Reliability artifacts: `.planning/artifacts/selector-health/`, `.planning/artifacts/smoke/`
 - Primary workflows: extraction run, selector health preflight, smoke reliability in local + CI
+- New milestone scope is additive on top of the existing smoke/health pipeline (no rewrite)
 
 ## Constraints
 
@@ -75,6 +80,7 @@ Users can reliably extract structured league match results and statistics into r
 | Centralize selector contracts with deterministic fallback telemetry | Improve drift detection and diagnostics consistency | ✓ Adopted in v1.1 |
 | Enforce schema validation as required live-smoke gate | Prevent false-positive smoke passes on contract drift | ✓ Adopted in v1.1 |
 | Use one smoke command for local and CI | Avoid behavior drift across environments | ✓ Adopted in v1.1 |
+| Keep v1.2 focused on operational reliability (rerun/alerting/matrix) | Increase signal and recovery speed without architecture churn | — Pending |
 
 ---
-*Last updated: 2026-02-28 after v1.1 milestone completion*
+*Last updated: 2026-02-28 after v1.2 milestone initialization*

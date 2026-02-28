@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Reliability Hardening
-status: milestone_complete
-last_updated: "2026-02-28T06:12:40Z"
+milestone: v1.2
+milestone_name: Reliability Operations
+status: defining_requirements
+last_updated: "2026-02-28T06:40:00Z"
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -18,35 +18,33 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Users can reliably extract structured league match results and statistics from Flashscore pages into reusable local data files.
-**Current focus:** Define next milestone scope and requirements
+**Current focus:** Define v1.2 requirements and roadmap
 
 ## Current Position
 
-Phase: none active (v1.1 complete)
-Plan: none active
-Status: Milestone v1.1 archived and tagged; ready for next milestone definition
-Last activity: 2026-02-28 — Completed milestone archival for v1.1 Reliability Hardening
+Phase: Not started (defining requirements)
+Plan: -
+Status: Defining requirements
+Last activity: 2026-02-28 — Milestone v1.2 Reliability Operations started
 
-Progress: [██████████] 100%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 9.7 min
-- Total execution time: 1.0 hours
+- Total plans completed: 0
+- Average duration: -
+- Total execution time: -
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 | 2 | 12 min | 6 min |
-| 2 | 2 | 29 min | 14.5 min |
-| 3 | 2 | 17 min | 8.5 min |
+| - | - | - | - |
 
 **Recent Trend:**
-- Last 5 plans: 5 complete (all successful)
-- Trend: stable
+- Last 5 plans: -
+- Trend: new milestone baseline
 
 ## Accumulated Context
 
@@ -65,6 +63,7 @@ Recent decisions affecting current work:
 - [Phase 03]: Reuse production scraper services in smoke checks to avoid runtime-smoke divergence
 - [Phase 03]: Require `validate:schema` gate for live smoke pass status
 - [Phase 03]: Use shared `npm run smoke:reliability` command for local and CI reliability runs
+- [Milestone v1.2 init]: Focus scope on rerun, alerting, and rotating matrix capabilities
 
 ### Pending Todos
 
@@ -77,5 +76,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed v1.1 milestone archival
-Resume file: .planning/ROADMAP.md
+Stopped at: Milestone v1.2 initialization and requirements drafting
+Resume file: .planning/REQUIREMENTS.md
