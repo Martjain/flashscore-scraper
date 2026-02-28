@@ -2,17 +2,45 @@ import { TIMEOUT } from "../../../constants/index.js";
 import { openPageAndNavigate, waitForSelectorSafe } from "../../index.js";
 
 export const getListOfSeasons = async (context, leagueUrl) => {
-  const page = await openPageAndNavigate(context, `${leagueUrl}/archive`);
+  const normalizedLeagueUrl = leagueUrl?.replace(/\/+$/, "");
+  const page = await openPageAndNavigate(context, `${normalizedLeagueUrl}/archive`);
 
-  await waitForSelectorSafe(page, ["div.archive__season > a"], TIMEOUT);
+  const selectors = [
+    "div.archive__season > a",
+    "[data-testid*='season'] a[href*='/football/']",
+    ".archive a[href*='/football/']",
+    "a[href*='/football/']",
+  ];
+  await waitForSelectorSafe(page, selectors, TIMEOUT);
 
-  const listOfLeagueSeasons = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll("div.archive__season > a")).map(
-      (element) => {
-        return { name: element.innerText.trim(), url: element.href };
+  const listOfLeagueSeasons = await page.evaluate((selectors) => {
+    const toSegments = (href) => {
+      try {
+        return new URL(href, window.location.origin).pathname
+          .split("/")
+          .filter(Boolean);
+      } catch {
+        return [];
       }
+    };
+
+    const candidates = selectors.flatMap((selector) =>
+      Array.from(document.querySelectorAll(selector))
     );
-  });
+    const uniqueSeasons = new Map();
+
+    candidates.forEach((element) => {
+      const name = element.textContent?.trim().replace(/\s+/g, " ");
+      const segments = toSegments(element.href);
+      if (!name || segments[0] !== "football" || segments.length < 3) return;
+
+      uniqueSeasons.set(element.href, { name, url: element.href });
+    });
+
+    return Array.from(uniqueSeasons.values()).sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+  }, selectors);
 
   await page.close();
   return listOfLeagueSeasons;
