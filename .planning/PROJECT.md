@@ -2,51 +2,66 @@
 
 ## What This Is
 
-FlashscoreScraping is a Node.js CLI scraper that collects football match data from Flashscore pages using Playwright. It guides users through country/league/season selection (or accepts CLI args) and exports structured match data to JSON or CSV files. The current milestone focuses on migrating to Flashscore USA while preserving current behavior and output compatibility.
+FlashscoreScraping is a Node.js + Playwright CLI that scrapes soccer match data from Flashscore USA and exports structured outputs (JSON, JSON-array, CSV). It provides guided country/league/season selection and supports direct CLI arguments for scripted runs.
 
 ## Core Value
 
-Users can reliably extract structured league match results and statistics from Flashscore pages into reusable local data files.
+Users can reliably extract structured league match results and statistics into reusable local data files with stable schema contracts.
+
+## Current State
+
+- **Shipped milestone:** v1.0 Flashscore USA Migration (2026-02-28)
+- **Runtime routing:** discovery and league flows use Flashscore USA soccer routes (`/soccer/...`)
+- **Compatibility guardrail:** `npm run validate:schema` validates output shape after scraper changes
+- **Known quality status:** season-selector cross-competition bug fixed and validated
 
 ## Requirements
 
 ### Validated
 
-- ✓ User can run a CLI flow to select file type, country, league, and season — existing
-- ✓ User can scrape fixtures and results lists, then fetch per-match summary and statistics — existing
-- ✓ User can export data as JSON, JSON array, or CSV in `src/data` — existing
+- ✓ **CORE-01**: Scraper uses `https://www.flashscoreusa.com` as base domain
+- ✓ **SCRP-01**: Country/league/season discovery works on Flashscore USA soccer pages
+- ✓ **SCRP-02**: Match listing and detail extraction (including statistics payload) works on USA pages
+- ✓ **DATA-01**: JSON/JSON-array/CSV contract remains compatible for existing consumers
 
 ### Active
 
-- [ ] Scraper uses `https://www.flashscoreusa.com` as the base domain across the scraping flow
-- [ ] DOM selectors and navigation logic are updated so country/league/season and match scraping work on the USA site
-- [ ] Existing output shape (match metadata, information, statistics, file formats) remains backward compatible
+- [ ] **RELY-01**: Add selector health checks and fallback drift detection
+- [ ] **RELY-02**: Add automated end-to-end smoke checks for representative leagues
 
 ### Out of Scope
 
-- Multi-sport expansion beyond the current football flow — outside this migration scope
-- Rewriting the scraper into a different runtime/framework — unnecessary for this targeted reliability migration
+- Multi-sport expansion beyond current soccer scope
+- Rewriting scraper runtime/framework
+- CLI redesign unrelated to reliability and compatibility goals
+
+## Next Milestone Goals
+
+1. Build proactive selector health checks so upstream DOM changes are detected early.
+2. Add repeatable smoke tests that verify country→league→season→match flow and schema output.
 
 ## Context
 
-- Brownfield JavaScript project using Node.js + Playwright, documented in `.planning/codebase/*.md`.
-- No official Flashscore API is used; extraction depends on page structure and selectors.
-- Existing architecture is a monolithic CLI orchestrator with dedicated scraper service modules.
-- Current request is to migrate domain and selectors to `flashscoreusa.com` because it is more reliable for scraping.
+- Codebase size: ~1200 LOC (`src/` + `scripts/` JavaScript modules)
+- Architecture: CLI orchestration + service modules (`countries`, `leagues`, `seasons`, `matches`) + file writers
+- Data integrity strategy: schema compatibility script + defensive writer normalization
+- Planning artifacts: v1.0 roadmap and requirements archived under `.planning/milestones/`
 
 ## Constraints
 
-- **Tech Stack**: Keep ESM Node.js + Playwright implementation — avoid disruptive stack changes.
-- **Compatibility**: Preserve current CLI arguments and output file formats — existing usage scripts must continue to work.
-- **Data Integrity**: Maintain existing match object schema — downstream consumers rely on current fields.
-- **Execution Model**: Keep concurrency and save-interval behavior — large scrape jobs depend on this performance profile.
+- Keep ESM Node.js + Playwright stack
+- Preserve CLI argument contract and output formats
+- Keep match data object contract stable for downstream consumers
+- Maintain concurrency/save-interval execution model
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Use `https://www.flashscoreusa.com` as the canonical base domain | User reports higher reliability for the target workload | — Pending |
-| Preserve current CLI UX and output schema during migration | Minimize breaking changes while improving scrape reliability | — Pending |
+| Use `https://www.flashscoreusa.com` as canonical origin | Better reliability and accessible soccer structure for target flow | ✓ Adopted in v1.0 |
+| Use `/soccer/` routes (not `/football/`) on flashscoreusa | `/football/` maps to American football, while soccer competition data lives under `/soccer/` | ✓ Corrected and validated in v1.0 |
+| Add schema validation command to workflow | Catch downstream contract drift early when selectors evolve | ✓ `validate:schema` shipped in v1.0 |
+| Restrict season extraction to league archive selectors | Prevent global competition links from polluting season lists | ✓ Fixed with debug verification in v1.0 |
 
 ---
-*Last updated: 2026-02-28 after initialization*
+*Last updated: 2026-02-28 after v1.0 milestone completion*

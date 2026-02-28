@@ -2,40 +2,32 @@
 
 ## Overview
 
-This roadmap delivers a focused brownfield migration so the scraper runs on Flashscore USA with updated selectors while preserving the existing CLI contract and output schema.
+Roadmap is now milestone-oriented. Shipped milestone details are archived to keep this file small and focused on what's next.
+
+## Milestones
+
+- ✅ **v1.0 Flashscore USA Migration** — shipped 2026-02-28 ([archive](.planning/milestones/v1.0-ROADMAP.md))
+- 📋 **v1.1 Reliability Hardening** — planned
 
 ## Phases
 
-**Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+<details>
+<summary>✅ v1.0 Flashscore USA Migration (Phase 1) — SHIPPED 2026-02-28</summary>
 
-Decimal phases appear between their surrounding integers in numeric order.
+- [x] Phase 1: Flashscore USA Migration (2/2 plans)
+  - [x] 01-01: Update base URL and discovery/match selectors for Flashscore USA DOM
+  - [x] 01-02: Validate extraction flow and preserve output schema compatibility
 
-- [x] **Phase 1: Flashscore USA Migration** - Switch base domain and update selectors for stable scraping compatibility
+</details>
 
-## Phase Details
+### 📋 v1.1 Reliability Hardening (Planned)
 
-### Phase 1: Flashscore USA Migration
-**Goal**: Scraper reliably runs against Flashscore USA pages and returns backward-compatible output data.
-**Depends on**: Nothing (first phase)
-**Requirements**: [CORE-01, SCRP-01, SCRP-02, DATA-01]
-**Success Criteria** (what must be TRUE):
-  1. Running the CLI targets `https://www.flashscoreusa.com` across country/league/season/match scraping flow.
-  2. Country, league, and season selection returns valid options from the USA site.
-  3. Match links, summary data, and statistics are extracted successfully from the USA site.
-  4. JSON, JSON-array, and CSV output structure remains compatible with existing fields.
-**Plans**: TBD
-
-Plans:
-- [x] 01-01: Update base URL and discovery/match selectors for Flashscore USA DOM
-- [x] 01-02: Validate extraction flow and preserve output schema compatibility
+- [ ] Phase 2: Selector health checks and fallback monitoring
+- [ ] Phase 3: Automated end-to-end smoke coverage for representative leagues
 
 ## Progress
 
-**Execution Order:**
-Phases execute in numeric order: 1 → 1.1 → 2 → 2.1 → 3
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Flashscore USA Migration | 2/2 | Complete | 2026-02-28 |
+| Milestone | Status | Phases Complete | Shipped |
+|-----------|--------|-----------------|---------|
+| v1.0 Flashscore USA Migration | Complete | 1/1 | 2026-02-28 |
+| v1.1 Reliability Hardening | Planned | 0/2 | - |

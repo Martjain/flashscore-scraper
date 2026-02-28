@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-status: phase_complete
-last_updated: "2026-02-28T03:36:22Z"
+milestone_name: Flashscore USA Migration
+status: milestone_complete
+last_updated: "2026-02-28T03:53:30Z"
 progress:
   total_phases: 1
   completed_phases: 1
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Users can reliably extract structured league match results and statistics from Flashscore pages into reusable local data files.
-**Current focus:** Milestone v1.0 complete - ready for milestone closeout
+**Current focus:** Milestone v1.0 archived - ready to define v1.1
 
 ## Current Position
 
 Phase: 1 of 1 (Flashscore USA Migration)
 Plan: 2 of 2 in current phase
-Status: Ready for phase verification
-Last activity: 2026-02-28 — Verified and completed Phase 1 (Flashscore USA Migration)
+Status: Milestone complete
+Last activity: 2026-02-28 — Archived v1.0 milestone artifacts and prepared next-milestone context
 
 Progress: [██████████] 100%
 
@@ -55,7 +55,7 @@ Recent decisions affecting current work:
 
 - [Phase 1]: Migrate scraping to `https://www.flashscoreusa.com`
 - [Phase 1]: Preserve current CLI and output schema compatibility
-- [Phase 1]: Use `/football/` as discovery entrypoint to resolve country lists on Flashscore USA
+- [Phase 1]: Use `/soccer/` route family for competition discovery on Flashscore USA
 - [Phase 1]: Parse generic `g_<sport>_` match IDs and fall back to URL `mid` for resilience
 - [Phase 1]: Add `validate:schema` as a required compatibility check for generated output JSON
 
@@ -70,5 +70,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 01-VERIFICATION.md and phase closeout updates
+Stopped at: Completed v1.0 milestone archival and documentation updates
 Resume file: None
