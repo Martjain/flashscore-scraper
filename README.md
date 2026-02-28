@@ -117,11 +117,24 @@ Target a specific fixture:
 npm run smoke:reliability -- --sample 1 --max-matches 1 --fixture argentina-liga-profesional --timeout-ms 120000
 ```
 
+Rerun only failed fixtures from the latest artifact:
+
+```bash
+npm run smoke:reliability -- --dry-run --rerun-failed
+```
+
+Rerun with a specific artifact path:
+
+```bash
+npm run smoke:reliability -- --dry-run --rerun-failed --artifact /tmp/smoke-run.json
+```
+
 ### Smoke Guarantees
 
 - For live runs, `validate:schema` is a required gate before `RESULT: pass`.
 - A machine-readable artifact is always written before exit.
 - Exit code is non-zero for traversal failures or schema-gate failures.
+- Rerun preflight failures (missing/invalid artifact or no rerunnable failed fixtures) exit non-zero and print manual `--fixture` fallback guidance.
 
 Smoke artifacts:
 
@@ -139,6 +152,11 @@ Triggers:
 - Weekly `schedule`
 
 The job installs dependencies + Playwright Chromium, runs `npm run smoke:reliability`, and uploads smoke artifacts for both pass/fail runs.
+
+`workflow_dispatch` inputs also support:
+
+- `rerun_failed=true` to run rerun mode from artifact failures.
+- `artifact=<path>` to override the artifact path used by rerun mode.
 
 ## Output Shape
 

@@ -15,6 +15,15 @@ on:
         description: "Optional fixture id filter (e.g. usa-mls)"
         required: false
         default: ""
+      rerun_failed:
+        description: "Rerun only failed fixtures from a smoke artifact"
+        required: false
+        type: boolean
+        default: false
+      artifact:
+        description: "Optional artifact path for rerun mode"
+        required: false
+        default: ""
   schedule:
     - cron: "15 6 * * 1"
 
@@ -42,7 +51,12 @@ jobs:
       - name: Run reliability smoke
         run: |
           EXTRA_ARGS=""
-          if [ -n "${{ github.event.inputs.fixture || '' }}" ]; then
+          if [ "${{ github.event.inputs.rerun_failed || 'false' }}" = "true" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS --rerun-failed"
+            if [ -n "${{ github.event.inputs.artifact || '' }}" ]; then
+              EXTRA_ARGS="$EXTRA_ARGS --artifact ${{ github.event.inputs.artifact }}"
+            fi
+          elif [ -n "${{ github.event.inputs.fixture || '' }}" ]; then
             EXTRA_ARGS="$EXTRA_ARGS --fixture ${{ github.event.inputs.fixture }}"
           fi
           npm run smoke:reliability -- \
@@ -58,4 +72,3 @@ jobs:
           path: .planning/artifacts/smoke/
           if-no-files-found: warn
           retention-days: 14
-
