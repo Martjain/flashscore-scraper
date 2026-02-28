@@ -3,9 +3,10 @@ import { openPageAndNavigate, waitForSelectorSafe } from "../../index.js";
 export const getMatchLinks = async (context, leagueSeasonUrl, type) => {
   const page = await openPageAndNavigate(context, `${leagueSeasonUrl}/${type}`);
 
-  const LOAD_MORE_SELECTOR = '[data-testid="wcl-buttonLink"]';
+  const LOAD_MORE_SELECTOR =
+    '[data-testid="wcl-buttonLink"], .event__more--static';
   const MATCH_SELECTOR =
-    ".event__match.event__match--static.event__match--twoLine";
+    ".event__match.event__match--static.event__match--twoLine, .event__match[id^='g_1_']";
   const CLICK_DELAY = 600;
   const MAX_EMPTY_CYCLES = 4;
 
@@ -37,15 +38,25 @@ export const getMatchLinks = async (context, leagueSeasonUrl, type) => {
   await waitForSelectorSafe(page, [MATCH_SELECTOR]);
 
   const matchIdList = await page.evaluate(() => {
+    const getIdFromUrl = (url) => {
+      try {
+        return new URL(url, window.location.origin).searchParams.get("mid");
+      } catch {
+        return null;
+      }
+    };
+
     return Array.from(
       document.querySelectorAll(
-        ".event__match.event__match--static.event__match--twoLine"
+        ".event__match.event__match--static.event__match--twoLine, .event__match[id^='g_1_']"
       )
     ).map((element) => {
       const id = element?.id?.replace("g_1_", "");
-      const url = element.querySelector("a.eventRowLink")?.href ?? null;
-      return { id, url };
-    });
+      const url =
+        element.querySelector("a.eventRowLink, a[href*='/match/']")?.href ??
+        null;
+      return { id: id || getIdFromUrl(url), url };
+    }).filter((match) => match.id || match.url);
   });
 
   await page.close();
@@ -55,38 +66,52 @@ export const getMatchLinks = async (context, leagueSeasonUrl, type) => {
 };
 
 export const getMatchData = async (context, { id: matchId, url }) => {
+  if (!url) {
+    return createEmptyMatchData(matchId);
+  }
+
   const page = await openPageAndNavigate(context, url);
+  let statistics = [];
 
-  await waitForSelectorSafe(page, [
-    ".duelParticipant__startTime",
-    "div[data-testid='wcl-summaryMatchInformation'] > div'",
-  ]);
+  try {
+    await waitForSelectorSafe(page, [
+      ".duelParticipant__startTime",
+      "div[data-testid='wcl-summaryMatchInformation'] > div",
+    ]);
 
-  const matchData = await extractMatchData(page);
-  const information = await extractMatchInformation(page);
+    const matchData = await extractMatchData(page);
+    const information = await extractMatchInformation(page);
 
-  const statsLink = buildStatsUrl(url);
-  await page.goto(statsLink, { waitUntil: "domcontentloaded" });
+    const statsLink = buildStatsUrl(url);
+    if (statsLink) {
+      await page.goto(statsLink, { waitUntil: "domcontentloaded" });
+      await waitForSelectorSafe(page, [
+        "div[data-testid='wcl-statistics']",
+        "div[data-testid='wcl-statistics-value']",
+      ]);
+      statistics = await extractMatchStatistics(page);
+    }
 
-  await waitForSelectorSafe(page, [
-    "div[data-testid='wcl-statistics']",
-    "div[data-testid='wcl-statistics-value']",
-  ]);
-
-  const statistics = await extractMatchStatistics(page);
-
-  await page.close();
-  return { matchId, ...matchData, information, statistics };
+    return { matchId, ...matchData, information, statistics };
+  } catch {
+    return createEmptyMatchData(matchId);
+  } finally {
+    await page.close();
+  }
 };
 
 const buildStatsUrl = (matchUrl) => {
   if (!matchUrl) return null;
 
-  const url = new URL(matchUrl);
-  const base = url.origin + url.pathname.replace(/\/$/, "");
-  const mid = url.searchParams.get("mid");
-
-  return `${base}/summary/stats/0/?mid=${mid}`;
+  try {
+    const url = new URL(matchUrl);
+    const base = url.origin + url.pathname.replace(/\/$/, "");
+    const mid = url.searchParams.get("mid");
+    if (!mid) return null;
+    return `${base}/summary/stats/0/?mid=${mid}`;
+  } catch {
+    return null;
+  }
 };
 
 const extractMatchData = async (page) => {
@@ -212,3 +237,26 @@ const extractMatchStatistics = async (page) => {
     }));
   });
 };
+
+const createEmptyMatchData = (matchId) => ({
+  matchId: matchId ?? null,
+  stage: null,
+  date: null,
+  status: "NOT STARTED",
+  home: {
+    name: null,
+    image: null,
+  },
+  away: {
+    name: null,
+    image: null,
+  },
+  result: {
+    home: null,
+    away: null,
+    regulationTime: null,
+    penalties: null,
+  },
+  information: [],
+  statistics: [],
+});
