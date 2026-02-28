@@ -13,7 +13,7 @@ Requirements for milestone v1.2 Reliability Operations. Each maps to exactly one
 
 ### Alerting
 
-- [ ] **RELY-08**: User can receive chat/webhook alerts for smoke or selector-health failures that include run ID, failure stage, and affected fixture/scope identifiers.
+- [x] **RELY-08**: User can receive chat/webhook alerts for smoke or selector-health failures that include run ID, failure stage, and affected fixture/scope identifiers.
 
 ### Coverage Expansion
 
@@ -43,7 +43,7 @@ Explicitly excluded from v1.2 scope.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | RELY-07 | Phase 4 | Complete |
-| RELY-08 | Phase 5 | Pending |
+| RELY-08 | Phase 5 | Complete |
 | RELY-09 | Phase 6 | Pending |
 
 **Coverage:**
@@ -53,4 +53,4 @@ Explicitly excluded from v1.2 scope.
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after roadmap phase mapping*
+*Last updated: 2026-02-28 after phase 5 completion*

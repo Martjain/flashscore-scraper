@@ -88,7 +88,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
   - [x] 04-01: Implement failed-fixture artifact parsing and rerun selection mode
   - [x] 04-02: Wire rerun mode into smoke command + CI-safe error handling
 
-- [ ] Phase 5: Reliability Failure Alerts (2/2 plans)
+- [x] Phase 5: Reliability Failure Alerts (2/2 plans) (completed 2026-02-28)
   - [x] 05-01: Implement webhook alert publisher and normalized failure payload builder
   - [x] 05-02: Integrate alert triggers into smoke + selector-health workflows
 
@@ -102,4 +102,4 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 |-----------|--------|-----------------|---------|
 | v1.0 Flashscore USA Migration | Complete | 1/1 | 2026-02-28 |
 | v1.1 Reliability Hardening | Complete | 2/2 | 2026-02-28 |
-| v1.2 Reliability Operations | In Progress | 1/3 | - |
+| v1.2 Reliability Operations | In Progress | 2/3 | - |
