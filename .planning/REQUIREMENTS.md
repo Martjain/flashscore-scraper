@@ -7,12 +7,12 @@
 
 ### Target Domain
 
-- [ ] **CORE-01**: Scraper uses `https://www.flashscoreusa.com` as the base domain for scraping flows
+- [x] **CORE-01**: Scraper uses `https://www.flashscoreusa.com` as the base domain for scraping flows
 
 ### Scraping Compatibility
 
-- [ ] **SCRP-01**: Country, league, and season discovery works against the Flashscore USA site structure
-- [ ] **SCRP-02**: Match listing, summary extraction, and statistics extraction work against the Flashscore USA site structure
+- [x] **SCRP-01**: Country, league, and season discovery works against the Flashscore USA site structure
+- [x] **SCRP-02**: Match listing, summary extraction, and statistics extraction work against the Flashscore USA site structure
 
 ### Data Output Compatibility
 
@@ -37,9 +37,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CORE-01 | Phase 1 | Pending |
-| SCRP-01 | Phase 1 | Pending |
-| SCRP-02 | Phase 1 | Pending |
+| CORE-01 | Phase 1 | Complete |
+| SCRP-01 | Phase 1 | Complete |
+| SCRP-02 | Phase 1 | Complete |
 | DATA-01 | Phase 1 | Pending |
 
 **Coverage:**

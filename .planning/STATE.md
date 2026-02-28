@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 1 of 1 (Flashscore USA Migration)
-Plan: 0 of 2 in current phase
-Status: Ready to execute
-Last activity: 2026-02-28 — Planned Phase 1 with two executable plans
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-28 — Completed Plan 01-01 (USA domain + selector migration)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0.0 hours
+- Total plans completed: 1
+- Average duration: 11 min
+- Total execution time: 0.2 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 | 0 | 0 min | - |
+| 1 | 1 | 11 min | 11 min |
 
 **Recent Trend:**
-- Last 5 plans: none yet
+- Last 5 plans: 01-01 (11 min)
 - Trend: Stable
 
 ## Accumulated Context
@@ -42,6 +42,8 @@ Recent decisions affecting current work:
 
 - [Phase 1]: Migrate scraping to `https://www.flashscoreusa.com`
 - [Phase 1]: Preserve current CLI and output schema compatibility
+- [Phase 1]: Use `/football/` as discovery entrypoint to resolve country lists on Flashscore USA
+- [Phase 1]: Parse generic `g_<sport>_` match IDs and fall back to URL `mid` for resilience
 
 ### Pending Todos
 
@@ -49,10 +51,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- Selector compatibility risk due to DOM differences between Flashscore domains
+- Statistics availability varies by league/match; extraction must tolerate missing stats blocks
 
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Ready to execute Phase 1 plans
+Stopped at: Completed 01-01-PLAN.md
 Resume file: None
