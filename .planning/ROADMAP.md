@@ -62,13 +62,13 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
   - [x] 02-01: Implement selector contract registry and fallback map
   - [x] 02-02: Implement health-check command with drift diagnostics artifact
 
-- [ ] Phase 3: End-to-End Smoke Automation (1/2 plans)
+- [x] Phase 3: End-to-End Smoke Automation (2/2 plans) - completed 2026-02-28
   - [x] 03-01: Build representative fixture smoke runner
-  - [ ] 03-02: Integrate schema gate and CI schedule/manual workflow
+  - [x] 03-02: Integrate schema gate and CI schedule/manual workflow
 
 ## Progress
 
 | Milestone | Status | Phases Complete | Shipped |
 |-----------|--------|-----------------|---------|
 | v1.0 Flashscore USA Migration | Complete | 1/1 | 2026-02-28 |
-| v1.1 Reliability Hardening | In Progress | 1/2 | - |
+| v1.1 Reliability Hardening | In Progress | 2/2 | - |

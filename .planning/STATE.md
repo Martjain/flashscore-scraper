@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Reliability Hardening
-status: plan_in_progress
-last_updated: "2026-02-28T05:20:57Z"
+status: phase_complete
+last_updated: "2026-02-28T05:39:26Z"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Users can reliably extract structured league match results and statistics from Flashscore pages into reusable local data files.
-**Current focus:** Phase 3 planning and execution preparation (end-to-end smoke automation)
+**Current focus:** Milestone closeout after Phase 3 completion and verification
 
 ## Current Position
 
-Phase: 3 of 3 (End-to-End Smoke Automation)
-Plan: 1 of 2 complete (03-02 next)
-Status: Phase 3 execution in progress; 03-01 smoke runner is complete
-Last activity: 2026-02-28 — Completed 03-01 reliability smoke runner and artifact pipeline
+Phase: 3 of 3 complete (End-to-End Smoke Automation)
+Plan: 2 of 2 complete
+Status: Phase 3 verified and complete; ready for milestone completion flow
+Last activity: 2026-02-28 — Completed 03-02, verified phase goal, and marked phase complete
 
-Progress: [████████░░] 83%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 8.4 min
-- Total execution time: 0.71 hours
+- Total plans completed: 6
+- Average duration: 9.7 min
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
@@ -42,10 +42,10 @@ Progress: [████████░░] 83%
 |-------|-------|-------|----------|
 | 1 | 2 | 12 min | 6 min |
 | 2 | 2 | 29 min | 14.5 min |
-| 3 | 1 | 1 min | 1 min |
+| 3 | 2 | 17 min | 8.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 5 complete (2 in v1.0, 3 in v1.1)
+- Last 5 plans: 5 complete (all successful)
 - Trend: stable
 
 ## Accumulated Context
@@ -64,6 +64,8 @@ Recent decisions affecting current work:
 - [Phase 2]: Use discovery-first selector health probes with strict/default mode semantics and retained reports
 - [Phase 03]: Reuse production scraper services in smoke checks — Prevents divergence between smoke behavior and runtime extraction path.
 - [Phase 03]: Persist smoke artifacts before process exit — CI and local debugging need machine-readable diagnostics on both pass and fail runs.
+- [Phase 03]: Require validate:schema gate for live smoke pass status.
+- [Phase 03]: Use shared `npm run smoke:reliability` command for both local and CI reliability runs.
 
 ### Pending Todos
 
@@ -76,5 +78,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 03-01-PLAN.md
-Resume file: .planning/phases/03-end-to-end-smoke-automation/03-02-PLAN.md
+Stopped at: Completed Phase 3 execution and verification
+Resume file: .planning/ROADMAP.md
