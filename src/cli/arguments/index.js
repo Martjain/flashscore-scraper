@@ -59,6 +59,9 @@ export const parseArguments = () => {
 const SUPPORTED_SELECTOR_HEALTH_SCOPES = Object.freeze([
   ...CRITICAL_SELECTOR_SCOPE_ORDER,
 ]);
+const DEFAULT_SMOKE_SAMPLE = 3;
+const DEFAULT_SMOKE_MAX_MATCHES = 1;
+const DEFAULT_SMOKE_TIMEOUT_MS = 90000;
 
 const parseOptionValue = (args, index, flagName) => {
   const arg = args[index];
@@ -84,6 +87,9 @@ const parsePositiveInteger = (value, flagName) => {
   }
   return parsed;
 };
+
+const parseBooleanFlag = (arg, flagName) =>
+  arg === flagName || arg.startsWith(`${flagName}=`);
 
 export const parseSelectorHealthArguments = (rawArgs = process.argv.slice(2)) => {
   const options = {
@@ -142,6 +148,69 @@ export const parseSelectorHealthArguments = (rawArgs = process.argv.slice(2)) =>
     }
 
     options.scopes = Array.from(new Set(scopes));
+  }
+
+  return options;
+};
+
+export const parseSmokeReliabilityArguments = (
+  rawArgs = process.argv.slice(2)
+) => {
+  const options = {
+    sample: DEFAULT_SMOKE_SAMPLE,
+    maxMatches: DEFAULT_SMOKE_MAX_MATCHES,
+    timeoutMs: DEFAULT_SMOKE_TIMEOUT_MS,
+    fixtureIds: [],
+    dryRun: false,
+    quiet: false,
+    report: null,
+    help: false,
+  };
+  const fixtureIds = [];
+
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const arg = rawArgs[index];
+
+    if (parseBooleanFlag(arg, "--dry-run")) options.dryRun = true;
+    if (parseBooleanFlag(arg, "--quiet")) options.quiet = true;
+    if (arg === "--help" || arg === "-h") options.help = true;
+
+    if (arg === "--sample" || arg.startsWith("--sample=")) {
+      const value = parseOptionValue(rawArgs, index, "--sample");
+      options.sample = parsePositiveInteger(value, "--sample");
+      if (arg === "--sample") index += 1;
+    }
+
+    if (arg === "--max-matches" || arg.startsWith("--max-matches=")) {
+      const value = parseOptionValue(rawArgs, index, "--max-matches");
+      options.maxMatches = parsePositiveInteger(value, "--max-matches");
+      if (arg === "--max-matches") index += 1;
+    }
+
+    if (arg === "--timeout-ms" || arg.startsWith("--timeout-ms=")) {
+      const value = parseOptionValue(rawArgs, index, "--timeout-ms");
+      options.timeoutMs = parsePositiveInteger(value, "--timeout-ms");
+      if (arg === "--timeout-ms") index += 1;
+    }
+
+    if (arg === "--fixture" || arg.startsWith("--fixture=")) {
+      const value = parseOptionValue(rawArgs, index, "--fixture");
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+        .forEach((fixtureId) => fixtureIds.push(fixtureId));
+      if (arg === "--fixture") index += 1;
+    }
+
+    if (arg === "--report" || arg.startsWith("--report=")) {
+      options.report = parseOptionValue(rawArgs, index, "--report");
+      if (arg === "--report") index += 1;
+    }
+  }
+
+  if (fixtureIds.length > 0) {
+    options.fixtureIds = Array.from(new Set(fixtureIds));
   }
 
   return options;
