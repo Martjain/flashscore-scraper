@@ -67,7 +67,8 @@ let lastKnownValidDedupePolicy = createDefaultDedupePolicy();
 const parseOptionalBooleanWithFallback = ({
   env = process.env,
   key,
-  fallbackValue,
+  defaultValue,
+  invalidFallbackValue,
   diagnostics,
   scope,
 }) => {
@@ -79,10 +80,10 @@ const parseOptionalBooleanWithFallback = ({
       scope,
       status: "default",
       raw: null,
-      resolved: fallbackValue,
+      resolved: defaultValue,
       reason: "env_not_set",
     });
-    return fallbackValue;
+    return defaultValue;
   }
 
   if (parsed === null) {
@@ -91,10 +92,10 @@ const parseOptionalBooleanWithFallback = ({
       scope,
       status: "fallback_last_known",
       raw,
-      resolved: fallbackValue,
+      resolved: invalidFallbackValue,
       reason: "invalid_boolean",
     });
-    return fallbackValue;
+    return invalidFallbackValue;
   }
 
   diagnostics.push({
@@ -111,7 +112,8 @@ const parseOptionalBooleanWithFallback = ({
 const parseOptionalDurationWithFallback = ({
   env = process.env,
   key,
-  fallbackValueMs,
+  defaultValueMs,
+  invalidFallbackValueMs,
   diagnostics,
   scope,
 }) => {
@@ -122,11 +124,11 @@ const parseOptionalDurationWithFallback = ({
       scope,
       status: "default",
       raw: null,
-      resolvedMs: fallbackValueMs,
-      resolved: formatAlertDurationMs(fallbackValueMs),
+      resolvedMs: defaultValueMs,
+      resolved: formatAlertDurationMs(defaultValueMs),
       reason: "env_not_set",
     });
-    return fallbackValueMs;
+    return defaultValueMs;
   }
 
   const parsed = parseAlertDurationMs(raw);
@@ -136,11 +138,11 @@ const parseOptionalDurationWithFallback = ({
       scope,
       status: "fallback_last_known",
       raw,
-      resolvedMs: fallbackValueMs,
-      resolved: formatAlertDurationMs(fallbackValueMs),
+      resolvedMs: invalidFallbackValueMs,
+      resolved: formatAlertDurationMs(invalidFallbackValueMs),
       reason: parsed.error,
     });
-    return fallbackValueMs;
+    return invalidFallbackValueMs;
   }
 
   diagnostics.push({
@@ -176,20 +178,23 @@ export const resolveAlertDedupePolicy = ({
     : "unknown";
 
   const diagnostics = [];
+  const defaultPolicy = createDefaultDedupePolicy();
   const fallbackPolicy = cloneDedupePolicy(lastKnownValidDedupePolicy);
   const resolvedPolicy = createDefaultDedupePolicy();
 
   resolvedPolicy.global.enabled = parseOptionalBooleanWithFallback({
     env,
     key: ALERT_DEDUPE_ENABLED_ENV_KEY,
-    fallbackValue: fallbackPolicy.global.enabled,
+    defaultValue: defaultPolicy.global.enabled,
+    invalidFallbackValue: fallbackPolicy.global.enabled,
     diagnostics,
     scope: "global",
   });
   resolvedPolicy.global.cooldownMs = parseOptionalDurationWithFallback({
     env,
     key: ALERT_DEDUPE_COOLDOWN_ENV_KEY,
-    fallbackValueMs: fallbackPolicy.global.cooldownMs,
+    defaultValueMs: defaultPolicy.global.cooldownMs,
+    invalidFallbackValueMs: fallbackPolicy.global.cooldownMs,
     diagnostics,
     scope: "global",
   });
@@ -202,14 +207,16 @@ export const resolveAlertDedupePolicy = ({
       enabled: parseOptionalBooleanWithFallback({
         env,
         key: keys.enabled,
-        fallbackValue: sourceFallback.enabled,
+        defaultValue: resolvedPolicy.global.enabled,
+        invalidFallbackValue: sourceFallback.enabled,
         diagnostics,
         scope: entrySource,
       }),
       cooldownMs: parseOptionalDurationWithFallback({
         env,
         key: keys.cooldown,
-        fallbackValueMs: sourceFallback.cooldownMs,
+        defaultValueMs: resolvedPolicy.global.cooldownMs,
+        invalidFallbackValueMs: sourceFallback.cooldownMs,
         diagnostics,
         scope: entrySource,
       }),
