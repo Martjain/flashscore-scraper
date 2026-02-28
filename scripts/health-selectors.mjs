@@ -3,6 +3,7 @@ import { parseSelectorHealthArguments } from "../src/cli/arguments/index.js";
 import { sendFailureAlert } from "../src/reliability/alerts/index.js";
 import { runSelectorHealthCheck } from "../src/selector-health/health-check/runSelectorHealthCheck.js";
 import {
+  DEFAULT_SELECTOR_HEALTH_REPORT_PATH,
   persistSelectorHealthReport,
   printSelectorHealthSummary,
 } from "../src/selector-health/health-check/reporting.js";
@@ -95,35 +96,142 @@ const buildSelectorRunnerFailure = (error, options = {}) => {
   };
 };
 
-const emitSelectorFailureAlert = async (result, report = null) => {
+const buildAlertDedupeEntry = (alertResult = null) => {
+  const signatureKey = alertResult?.dedupe?.signatureKey;
+  if (!signatureKey) return null;
+
+  return {
+    signatureKey,
+    decision: alertResult?.dedupe?.decision || null,
+    reason: alertResult?.dedupe?.reason || null,
+    firstSeen: alertResult?.dedupe?.state?.firstSeen || null,
+    lastSeen: alertResult?.dedupe?.state?.lastSeen || null,
+    cooldownUntil: alertResult?.dedupe?.state?.cooldownUntil || null,
+    suppressedCount: Number(alertResult?.dedupe?.state?.suppressedCount || 0),
+    firstSuppressedAt: alertResult?.dedupe?.state?.firstSuppressedAt || null,
+    lastSuppressedAt: alertResult?.dedupe?.state?.lastSuppressedAt || null,
+    priorSuppressedCount: Number(
+      alertResult?.dedupe?.suppressionSummary?.suppressedCount || 0
+    ),
+    priorFirstSuppressedAt:
+      alertResult?.dedupe?.suppressionSummary?.firstSuppressedAt || null,
+    priorLastSuppressedAt:
+      alertResult?.dedupe?.suppressionSummary?.lastSuppressedAt || null,
+    priorCooldownUntil:
+      alertResult?.dedupe?.suppressionSummary?.cooldownUntil || null,
+  };
+};
+
+const attachAlertAudit = (result, alertResult = null) => {
+  const entry = buildAlertDedupeEntry(alertResult);
+  const entries = entry ? [entry] : [];
+  const bySignature = entry ? { [entry.signatureKey]: entry } : {};
+  const gate = alertResult?.gate || null;
+
+  return {
+    ...result,
+    alerts: {
+      failure: alertResult
+        ? {
+            attempted: Boolean(alertResult.attempted),
+            sent: Boolean(alertResult.sent),
+            skipped: Boolean(alertResult.skipped),
+            suppressed: Boolean(alertResult.suppressed),
+            gateReason: gate?.reason || null,
+            dedupeReason: alertResult?.dedupe?.reason || null,
+            statusCode: alertResult?.statusCode ?? null,
+            error: alertResult?.error || null,
+          }
+        : null,
+      dedupe: {
+        entries,
+        bySignature,
+      },
+    },
+    alertDedupe: {
+      entries,
+      bySignature,
+      updatedAt: new Date().toISOString(),
+    },
+  };
+};
+
+const logDedupeDecision = (alertResult, options = {}) => {
+  if (options.quiet || !alertResult?.dedupe?.signatureKey) return;
+
+  const entry = buildAlertDedupeEntry(alertResult);
+  if (!entry) return;
+
+  if (entry.decision === "suppress") {
+    console.info(
+      [
+        "[alert-dedupe] suppressed",
+        `signature=${entry.signatureKey}`,
+        `reason=${entry.reason || "within_cooldown"}`,
+        `suppressedCount=${entry.suppressedCount}`,
+        `cooldownUntil=${entry.cooldownUntil || "n/a"}`,
+      ].join(" | ")
+    );
+    return;
+  }
+
+  if (entry.decision === "emit" && entry.priorSuppressedCount > 0) {
+    console.info(
+      [
+        "[alert-dedupe] emitted_after_cooldown",
+        `signature=${entry.signatureKey}`,
+        `priorSuppressed=${entry.priorSuppressedCount}`,
+        `windowEnd=${entry.priorCooldownUntil || "n/a"}`,
+      ].join(" | ")
+    );
+  }
+};
+
+const emitSelectorFailureAlert = async (result, options = {}) => {
   try {
     const alertResult = await sendFailureAlert({
       source: "selector_health",
       result,
       metadata: {
-        artifactPath: report?.latestPath || null,
-        historyPath: report?.historyPath || null,
+        artifactPath: options.artifactPath || null,
+        historyPath: null,
       },
     });
+    logDedupeDecision(alertResult, options);
 
     if (alertResult.skipped || alertResult.sent) {
-      return;
+      return alertResult;
     }
 
-    console.warn(
-      [
-        "WARNING: selector-health failure alert delivery failed",
-        `reason=${alertResult.error || "unknown"}`,
-        `status=${alertResult.statusCode ?? "n/a"}`,
-        `durationMs=${alertResult.durationMs ?? 0}`,
-      ].join(" | ")
-    );
+    if (!alertResult.suppressed) {
+      console.warn(
+        [
+          "WARNING: selector-health failure alert delivery failed",
+          `reason=${alertResult.error || "unknown"}`,
+          `status=${alertResult.statusCode ?? "n/a"}`,
+          `durationMs=${alertResult.durationMs ?? 0}`,
+        ].join(" | ")
+      );
+    }
+
+    return alertResult;
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "unknown_alert_error";
     console.warn(
       `WARNING: selector-health failure alert delivery failed | reason=${message}`
     );
+    return {
+      attempted: false,
+      sent: false,
+      skipped: false,
+      suppressed: false,
+      gate: null,
+      dedupe: null,
+      statusCode: null,
+      durationMs: 0,
+      error: message,
+    };
   }
 };
 
@@ -161,15 +269,19 @@ const run = async () => {
       failFast: options.failFast,
       dryRun: options.dryRun,
     });
-    const reportArtifacts = await persistSelectorHealthReport(result, {
+    const alertResult = await emitSelectorFailureAlert(result, {
+      quiet: options.quiet,
+      artifactPath: options.report || DEFAULT_SELECTOR_HEALTH_REPORT_PATH,
+    });
+    const resultWithAlertAudit = attachAlertAudit(result, alertResult);
+    const reportArtifacts = await persistSelectorHealthReport(resultWithAlertAudit, {
       reportPath: options.report,
       keepHistory: 30,
     });
     const enrichedResult = {
-      ...result,
+      ...resultWithAlertAudit,
       report: reportArtifacts,
     };
-    await emitSelectorFailureAlert(enrichedResult, reportArtifacts);
 
     if (!options.quiet) {
       console.info(`Report: ${reportArtifacts.latestPath}`);
@@ -181,9 +293,14 @@ const run = async () => {
     console.error(`Selector health-check failed: ${message}`);
 
     const failureResult = buildSelectorRunnerFailure(error, options);
+    const alertResult = await emitSelectorFailureAlert(failureResult, {
+      quiet: options.quiet,
+      artifactPath: options.report || DEFAULT_SELECTOR_HEALTH_REPORT_PATH,
+    });
+    const failureWithAlertAudit = attachAlertAudit(failureResult, alertResult);
     let reportArtifacts = null;
     try {
-      reportArtifacts = await persistSelectorHealthReport(failureResult, {
+      reportArtifacts = await persistSelectorHealthReport(failureWithAlertAudit, {
         reportPath: options.report,
         keepHistory: 30,
       });
@@ -195,9 +312,7 @@ const run = async () => {
         reportError instanceof Error ? reportError.message : "unknown_report_error";
       console.error(`Selector health reporting failed: ${reportMessage}`);
     }
-
-    await emitSelectorFailureAlert(failureResult, reportArtifacts);
-    printSelectorHealthSummary(failureResult, { quiet: options.quiet });
+    printSelectorHealthSummary(failureWithAlertAudit, { quiet: options.quiet });
     process.exitCode = 1;
   } finally {
     await context?.close();

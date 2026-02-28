@@ -3,6 +3,7 @@ import {
   pruneSelectorHealthHistory,
   writeSelectorHealthReports,
 } from "./retention.js";
+export { DEFAULT_SELECTOR_HEALTH_REPORT_PATH } from "./retention.js";
 
 const formatDurationMs = (durationMs) => {
   if (!Number.isFinite(durationMs)) return "0ms";
@@ -35,6 +36,27 @@ export const printSelectorHealthSummary = (result, options = {}) => {
         console.info(
           `- ${check.scope} (${check.contractKey}) at ${check.url ?? "n/a"} -> ${check.errorReason ?? "failure"}`
         );
+      });
+    }
+
+    const dedupeEntries = Array.isArray(result?.alertDedupe?.entries)
+      ? result.alertDedupe.entries
+      : [];
+    if (dedupeEntries.length > 0) {
+      console.info("\nAlert dedupe:");
+      dedupeEntries.forEach((entry) => {
+        const parts = [
+          `signature=${entry.signatureKey || "unknown"}`,
+          `decision=${entry.decision || "unknown"}`,
+          `reason=${entry.reason || "unknown"}`,
+          `suppressedCount=${Number(entry.suppressedCount || 0)}`,
+          `cooldownUntil=${entry.cooldownUntil || "n/a"}`,
+        ];
+        if (Number(entry.priorSuppressedCount || 0) > 0) {
+          parts.push(`priorSuppressed=${Number(entry.priorSuppressedCount || 0)}`);
+          parts.push(`priorWindowEnd=${entry.priorCooldownUntil || "n/a"}`);
+        }
+        console.info(`- ${parts.join(" | ")}`);
       });
     }
   }

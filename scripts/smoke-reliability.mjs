@@ -4,7 +4,10 @@ import { spawn } from "node:child_process";
 import { chromium } from "playwright";
 import { parseSmokeReliabilityArguments } from "../src/cli/arguments/index.js";
 import { sendFailureAlert } from "../src/reliability/alerts/index.js";
-import { persistSmokeReport } from "../src/reliability/smoke/reporting.js";
+import {
+  DEFAULT_SMOKE_REPORT_PATH,
+  persistSmokeReport,
+} from "../src/reliability/smoke/reporting.js";
 import {
   buildSmokeSchemaPayload,
   runSmokeSuite,
@@ -154,33 +157,140 @@ const printRunSummary = (result, options = {}) => {
   console.info(`RESULT: ${result.result}`);
 };
 
-const emitSmokeFailureAlert = async (result, report = null) => {
+const buildAlertDedupeEntry = (alertResult = null) => {
+  const signatureKey = alertResult?.dedupe?.signatureKey;
+  if (!signatureKey) return null;
+
+  return {
+    signatureKey,
+    decision: alertResult?.dedupe?.decision || null,
+    reason: alertResult?.dedupe?.reason || null,
+    firstSeen: alertResult?.dedupe?.state?.firstSeen || null,
+    lastSeen: alertResult?.dedupe?.state?.lastSeen || null,
+    cooldownUntil: alertResult?.dedupe?.state?.cooldownUntil || null,
+    suppressedCount: Number(alertResult?.dedupe?.state?.suppressedCount || 0),
+    firstSuppressedAt: alertResult?.dedupe?.state?.firstSuppressedAt || null,
+    lastSuppressedAt: alertResult?.dedupe?.state?.lastSuppressedAt || null,
+    priorSuppressedCount: Number(
+      alertResult?.dedupe?.suppressionSummary?.suppressedCount || 0
+    ),
+    priorFirstSuppressedAt:
+      alertResult?.dedupe?.suppressionSummary?.firstSuppressedAt || null,
+    priorLastSuppressedAt:
+      alertResult?.dedupe?.suppressionSummary?.lastSuppressedAt || null,
+    priorCooldownUntil:
+      alertResult?.dedupe?.suppressionSummary?.cooldownUntil || null,
+  };
+};
+
+const attachAlertAudit = (result, alertResult = null) => {
+  const entry = buildAlertDedupeEntry(alertResult);
+  const entries = entry ? [entry] : [];
+  const bySignature = entry ? { [entry.signatureKey]: entry } : {};
+  const gate = alertResult?.gate || null;
+
+  return {
+    ...result,
+    alerts: {
+      failure: alertResult
+        ? {
+            attempted: Boolean(alertResult.attempted),
+            sent: Boolean(alertResult.sent),
+            skipped: Boolean(alertResult.skipped),
+            suppressed: Boolean(alertResult.suppressed),
+            gateReason: gate?.reason || null,
+            dedupeReason: alertResult?.dedupe?.reason || null,
+            statusCode: alertResult?.statusCode ?? null,
+            error: alertResult?.error || null,
+          }
+        : null,
+      dedupe: {
+        entries,
+        bySignature,
+      },
+    },
+    alertDedupe: {
+      entries,
+      bySignature,
+      updatedAt: new Date().toISOString(),
+    },
+  };
+};
+
+const logDedupeDecision = (alertResult, options = {}) => {
+  if (options.quiet || !alertResult?.dedupe?.signatureKey) return;
+
+  const entry = buildAlertDedupeEntry(alertResult);
+  if (!entry) return;
+
+  if (entry.decision === "suppress") {
+    console.info(
+      [
+        "[alert-dedupe] suppressed",
+        `signature=${entry.signatureKey}`,
+        `reason=${entry.reason || "within_cooldown"}`,
+        `suppressedCount=${entry.suppressedCount}`,
+        `cooldownUntil=${entry.cooldownUntil || "n/a"}`,
+      ].join(" | ")
+    );
+    return;
+  }
+
+  if (entry.decision === "emit" && entry.priorSuppressedCount > 0) {
+    console.info(
+      [
+        "[alert-dedupe] emitted_after_cooldown",
+        `signature=${entry.signatureKey}`,
+        `priorSuppressed=${entry.priorSuppressedCount}`,
+        `windowEnd=${entry.priorCooldownUntil || "n/a"}`,
+      ].join(" | ")
+    );
+  }
+};
+
+const emitSmokeFailureAlert = async (result, options = {}) => {
   try {
     const alertResult = await sendFailureAlert({
       source: "smoke",
       result,
       metadata: {
-        artifactPath: report?.latestPath || null,
-        historyPath: report?.historyPath || null,
+        artifactPath: options.artifactPath || null,
+        historyPath: null,
       },
     });
+    logDedupeDecision(alertResult, options);
 
     if (alertResult.skipped || alertResult.sent) {
-      return;
+      return alertResult;
     }
 
-    console.warn(
-      [
-        "WARNING: smoke failure alert delivery failed",
-        `reason=${alertResult.error || "unknown"}`,
-        `status=${alertResult.statusCode ?? "n/a"}`,
-        `durationMs=${alertResult.durationMs ?? 0}`,
-      ].join(" | ")
-    );
+    if (!alertResult.suppressed) {
+      console.warn(
+        [
+          "WARNING: smoke failure alert delivery failed",
+          `reason=${alertResult.error || "unknown"}`,
+          `status=${alertResult.statusCode ?? "n/a"}`,
+          `durationMs=${alertResult.durationMs ?? 0}`,
+        ].join(" | ")
+      );
+    }
+
+    return alertResult;
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "unknown_alert_error";
     console.warn(`WARNING: smoke failure alert delivery failed | reason=${message}`);
+    return {
+      attempted: false,
+      sent: false,
+      skipped: false,
+      suppressed: false,
+      gate: null,
+      dedupe: null,
+      statusCode: null,
+      durationMs: 0,
+      error: message,
+    };
   }
 };
 
@@ -402,15 +512,19 @@ const run = async () => {
     });
     const finalResult = mergeSchemaGate(contextualResult, schemaGate);
 
-    const report = await persistSmokeReport(finalResult, {
+    const alertResult = await emitSmokeFailureAlert(finalResult, {
+      quiet: options.quiet,
+      artifactPath: options.report || DEFAULT_SMOKE_REPORT_PATH,
+    });
+    const resultWithAlertAudit = attachAlertAudit(finalResult, alertResult);
+    const report = await persistSmokeReport(resultWithAlertAudit, {
       reportPath: options.report,
       keepHistory: 30,
     });
     const enrichedResult = {
-      ...finalResult,
+      ...resultWithAlertAudit,
       report,
     };
-    await emitSmokeFailureAlert(enrichedResult, report);
 
     if (!options.quiet) {
       console.info(`Report: ${report.latestPath}`);
@@ -447,9 +561,14 @@ const run = async () => {
             }
           : null),
     });
+    const alertResult = await emitSmokeFailureAlert(failureResult, {
+      quiet: options.quiet,
+      artifactPath: options.report || DEFAULT_SMOKE_REPORT_PATH,
+    });
+    const failureWithAlertAudit = attachAlertAudit(failureResult, alertResult);
     let report = null;
     try {
-      report = await persistSmokeReport(failureResult, {
+      report = await persistSmokeReport(failureWithAlertAudit, {
         reportPath: options.report,
         keepHistory: 30,
       });
@@ -461,9 +580,7 @@ const run = async () => {
         reportError instanceof Error ? reportError.message : "unknown_report_error";
       console.error(`Smoke reporting failed: ${message}`);
     }
-    await emitSmokeFailureAlert(failureResult, report);
-
-    printRunSummary(failureResult, { quiet: options.quiet });
+    printRunSummary(failureWithAlertAudit, { quiet: options.quiet });
     process.exitCode = 1;
   } finally {
     await context?.close();
