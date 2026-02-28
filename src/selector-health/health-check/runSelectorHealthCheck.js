@@ -25,6 +25,7 @@ const STATIC_DRY_RUN_URLS = Object.freeze({
   [SELECTOR_HEALTH_SCOPES.MATCH_LIST]: `${BASE_URL}/soccer/usa/mls/results`,
   [SELECTOR_HEALTH_SCOPES.MATCH_DETAIL]: `${BASE_URL}/match/demo/`,
 });
+const MATCH_DETAIL_SEED_LEAGUE_URL = `${BASE_URL}/soccer/usa/mls`;
 
 const CONTRACT_BY_SCOPE = new Map(
   listCriticalSelectorContracts().map((contract) => [contract.scope, contract])
@@ -138,6 +139,20 @@ const getMatchUrls = async (context, seasonUrls, sample) => {
   return matches;
 };
 
+const getSeedMatchUrls = async (context, sample) => {
+  try {
+    const list = await getMatchLinks(context, MATCH_DETAIL_SEED_LEAGUE_URL, "results");
+    if (!Array.isArray(list)) return [];
+
+    return list
+      .filter((match) => match?.url)
+      .map((match) => match.url)
+      .slice(0, sample);
+  } catch {
+    return [];
+  }
+};
+
 const buildScopeTargets = async ({ context, scope, sample, dryRun }) => {
   const contract = CONTRACT_BY_SCOPE.get(scope);
   if (!contract) return [];
@@ -194,7 +209,10 @@ const buildScopeTargets = async ({ context, scope, sample, dryRun }) => {
     return targets.length > 0 ? targets : getStaticTargets(scope, contract);
   }
 
-  const matches = await getMatchUrls(context, seasons, sample);
+  let matches = await getMatchUrls(context, seasons, sample);
+  if (matches.length === 0) {
+    matches = await getSeedMatchUrls(context, sample);
+  }
   if (scope === SELECTOR_HEALTH_SCOPES.MATCH_DETAIL) {
     const targets = uniqueByUrl(
       matches.map((matchUrl) => ({
