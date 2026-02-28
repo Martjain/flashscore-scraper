@@ -15,6 +15,14 @@ on:
         description: "Optional fixture id filter (e.g. usa-mls)"
         required: false
         default: ""
+      matrix_mode:
+        description: "Fixture matrix mode (default|extended)"
+        required: false
+        default: "default"
+      rotation_key:
+        description: "Optional deterministic rotation key for extended mode"
+        required: false
+        default: ""
       rerun_failed:
         description: "Rerun only failed fixtures from a smoke artifact"
         required: false
@@ -53,6 +61,19 @@ jobs:
           RELIABILITY_ALERT_WEBHOOK_URL: ${{ secrets.RELIABILITY_ALERT_WEBHOOK_URL }}
         run: |
           EXTRA_ARGS=""
+          MATRIX_MODE_INPUT="${{ github.event.inputs.matrix_mode || 'default' }}"
+          ROTATION_KEY_INPUT="${{ github.event.inputs.rotation_key || '' }}"
+
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            export RELIABILITY_SMOKE_MATRIX_MODE="extended"
+            export RELIABILITY_SMOKE_ROTATION_KEY="$(date -u +%G-W%V)"
+          else
+            export RELIABILITY_SMOKE_MATRIX_MODE="${MATRIX_MODE_INPUT}"
+            if [ -n "${ROTATION_KEY_INPUT}" ]; then
+              export RELIABILITY_SMOKE_ROTATION_KEY="${ROTATION_KEY_INPUT}"
+            fi
+          fi
+
           if [ "${{ github.event.inputs.rerun_failed || 'false' }}" = "true" ]; then
             EXTRA_ARGS="$EXTRA_ARGS --rerun-failed"
             if [ -n "${{ github.event.inputs.artifact || '' }}" ]; then
