@@ -62,6 +62,20 @@ Scrape Premier League 22/23 with visible browser and export CSV:
 npm run start country=england league=premier-league-2022-2023 headless=false fileType=csv
 ```
 
+## Schema Compatibility Validation
+
+After generating an output file, validate that required JSON fields are still compatible with current consumers:
+
+```bash
+npm run validate:schema -- src/data/usa_nfl.array.json
+```
+
+Optional: limit checks to the first `N` entries:
+
+```bash
+npm run validate:schema -- src/data/usa_nfl.array.json --sample 10
+```
+
 ## Data Structure
 
 Each match result includes:
