@@ -6,6 +6,7 @@ import {
   getMatchLinks,
 } from "../../scraper/services/matches/index.js";
 import {
+  buildLeagueUrl,
   DEFAULT_FIXTURE_TIMEOUT_MS,
   DEFAULT_MAX_MATCHES,
   DEFAULT_SMOKE_SAMPLE,
@@ -193,19 +194,12 @@ const runFixtureSmoke = async ({ context, fixture, maxMatches, timeoutMs }) => {
     counters.leaguesDiscovered = Array.isArray(leagues) ? leagues.length : 0;
     diagnostics.leagues = leagues?.selectorDiagnostics ?? [];
 
-    if (!Array.isArray(leagues) || leagues.length === 0) {
-      return createFixtureFailure({
-        fixture,
-        startedAt,
-        counters,
-        failedStage: "leagues",
-        error: `no_leagues_found:${selectedCountry.id}`,
-        diagnostics,
-      });
-    }
-
-    const selectedLeague = findLeague(leagues, fixture.leagueSlugHint);
-    if (!selectedLeague?.url) {
+    const selectedLeague = findLeague(leagues ?? [], fixture.leagueSlugHint);
+    const fallbackLeagueUrl = fixture.leagueSlugHint
+      ? buildLeagueUrl(selectedCountry.id, fixture.leagueSlugHint)
+      : null;
+    const selectedLeagueUrl = selectedLeague?.url ?? fallbackLeagueUrl;
+    if (!selectedLeagueUrl) {
       return createFixtureFailure({
         fixture,
         startedAt,
@@ -215,9 +209,16 @@ const runFixtureSmoke = async ({ context, fixture, maxMatches, timeoutMs }) => {
         diagnostics,
       });
     }
+    if (!selectedLeague?.url && fallbackLeagueUrl) {
+      diagnostics.leaguesFallback = {
+        used: true,
+        leagueUrl: fallbackLeagueUrl,
+        reason: "empty_discovery_list",
+      };
+    }
 
     const seasons = await withTimeout(
-      () => getListOfSeasons(context, selectedLeague.url),
+      () => getListOfSeasons(context, selectedLeagueUrl),
       timeoutMs,
       `seasons timeout for fixture ${fixture.fixtureId}`
     );
@@ -230,7 +231,7 @@ const runFixtureSmoke = async ({ context, fixture, maxMatches, timeoutMs }) => {
         startedAt,
         counters,
         failedStage: "seasons",
-        error: `no_seasons_found:${selectedLeague.url}`,
+        error: `no_seasons_found:${selectedLeagueUrl}`,
         diagnostics,
       });
     }
@@ -252,12 +253,15 @@ const runFixtureSmoke = async ({ context, fixture, maxMatches, timeoutMs }) => {
       timeoutMs,
       `results timeout for fixture ${fixture.fixtureId}`
     );
-    const upcomingMatches = await withTimeout(
-      () => getMatchLinks(context, selectedSeason.url, "fixtures"),
-      timeoutMs,
-      `fixtures timeout for fixture ${fixture.fixtureId}`
-    );
-    const matchLinks = [...(upcomingMatches ?? []), ...(resultMatches ?? [])];
+    const fallbackMatches =
+      Array.isArray(resultMatches) && resultMatches.length > 0
+        ? []
+        : await withTimeout(
+            () => getMatchLinks(context, selectedSeason.url, "fixtures"),
+            timeoutMs,
+            `fixtures timeout for fixture ${fixture.fixtureId}`
+          );
+    const matchLinks = [...(resultMatches ?? []), ...(fallbackMatches ?? [])];
     counters.matchesDiscovered = matchLinks.length;
     diagnostics.matches = matchLinks?.selectorDiagnostics ?? [];
 
@@ -353,6 +357,40 @@ const buildIssues = (fixtures) =>
       error: fixture.error,
     }));
 
+const normalizeMatchPayload = (payload, fallbackMatchId) => ({
+  matchId: payload?.matchId ?? fallbackMatchId ?? null,
+  stage: payload?.stage ?? null,
+  date: payload?.date ?? null,
+  status: payload?.status ?? null,
+  home: {
+    name: payload?.home?.name ?? null,
+    image: payload?.home?.image ?? null,
+  },
+  away: {
+    name: payload?.away?.name ?? null,
+    image: payload?.away?.image ?? null,
+  },
+  result: {
+    home: payload?.result?.home ?? null,
+    away: payload?.result?.away ?? null,
+    regulationTime: payload?.result?.regulationTime ?? null,
+    penalties: payload?.result?.penalties ?? null,
+  },
+  information: Array.isArray(payload?.information)
+    ? payload.information.map((item) => ({
+        category: item?.category ?? null,
+        value: item?.value ?? null,
+      }))
+    : [],
+  statistics: Array.isArray(payload?.statistics)
+    ? payload.statistics.map((item) => ({
+        category: item?.category ?? null,
+        homeValue: item?.homeValue ?? null,
+        awayValue: item?.awayValue ?? null,
+      }))
+    : [],
+});
+
 export const buildSmokeSchemaPayload = (result) => {
   const fixtures = Array.isArray(result?.fixtures) ? result.fixtures : [];
   const entries = fixtures.flatMap((fixture) =>
@@ -361,10 +399,7 @@ export const buildSmokeSchemaPayload = (result) => {
 
   return entries.reduce((accumulator, entry, index) => {
     const matchId = entry.data?.matchId ?? entry.matchId ?? `fixture-${index + 1}`;
-    accumulator[matchId] = {
-      ...entry.data,
-      matchId,
-    };
+    accumulator[matchId] = normalizeMatchPayload(entry.data, matchId);
     return accumulator;
   }, {});
 };

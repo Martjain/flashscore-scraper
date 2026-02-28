@@ -6,26 +6,26 @@ export const DEFAULT_FIXTURE_TIMEOUT_MS = 90000;
 
 const SMOKE_FIXTURES = Object.freeze([
   {
-    fixtureId: "usa-mls",
-    label: "USA MLS",
-    countryId: "usa",
-    leagueSlugHint: "mls",
+    fixtureId: "argentina-liga-profesional",
+    label: "Argentina Liga Profesional",
+    countryId: "argentina",
+    leagueSlugHint: "liga-profesional",
+    seasonHint: "2026",
+    matchHint: "recent-results",
+  },
+  {
+    fixtureId: "australia-a-league",
+    label: "Australia A-League",
+    countryId: "australia",
+    leagueSlugHint: "a-league",
     seasonHint: "2025",
     matchHint: "recent-results",
   },
   {
-    fixtureId: "england-premier-league",
-    label: "England Premier League",
-    countryId: "england",
-    leagueSlugHint: "premier-league",
-    seasonHint: "2025",
-    matchHint: "recent-results",
-  },
-  {
-    fixtureId: "spain-laliga",
-    label: "Spain LaLiga",
-    countryId: "spain",
-    leagueSlugHint: "laliga",
+    fixtureId: "austria-bundesliga",
+    label: "Austria Bundesliga",
+    countryId: "austria",
+    leagueSlugHint: "bundesliga",
     seasonHint: "2025",
     matchHint: "recent-results",
   },
@@ -60,4 +60,3 @@ export const selectSmokeFixtures = ({ sample, fixtureIds = [] } = {}) => {
 
 export const buildLeagueUrl = (countryId, leagueSlug) =>
   `${BASE_URL}/soccer/${countryId}/${leagueSlug}/`;
-

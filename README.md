@@ -120,7 +120,7 @@ CI integration:
 CI-focused strict command example:
 
 ```bash
-npm run smoke:reliability -- --sample 1 --max-matches 1 --fixture usa-mls --timeout-ms 120000
+npm run smoke:reliability -- --sample 1 --max-matches 1 --fixture argentina-liga-profesional --timeout-ms 120000
 ```
 
 ## Data Structure
