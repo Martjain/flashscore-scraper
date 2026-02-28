@@ -9,7 +9,7 @@ Requirements for milestone v1.2 Reliability Operations. Each maps to exactly one
 
 ### Recovery Workflow
 
-- [ ] **RELY-07**: User can rerun reliability smoke for only failed fixtures from the latest smoke artifact without manually enumerating fixture IDs.
+- [x] **RELY-07**: User can rerun reliability smoke for only failed fixtures from the latest smoke artifact without manually enumerating fixture IDs.
 
 ### Alerting
 
@@ -42,7 +42,7 @@ Explicitly excluded from v1.2 scope.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RELY-07 | Phase 4 | Pending |
+| RELY-07 | Phase 4 | Complete |
 | RELY-08 | Phase 5 | Pending |
 | RELY-09 | Phase 6 | Pending |
 

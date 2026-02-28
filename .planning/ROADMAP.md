@@ -16,7 +16,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
-| 4 | Failed Fixture Reruns | Reduce recovery time by rerunning only failed smoke fixtures from the latest artifact | RELY-07 | 4 |
+| 4 | Failed Fixture Reruns | Complete    | 2026-02-28 | 4 |
 | 5 | Reliability Failure Alerts | Send actionable chat/webhook alerts for smoke and selector-health failures | RELY-08 | 4 |
 | 6 | Rotating Regional Matrix | Expand smoke coverage by region on schedule while preserving fast default CI smoke | RELY-09 | 4 |
 
@@ -84,7 +84,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 ### 📋 v1.2 Reliability Operations (Planned)
 
-- [ ] Phase 4: Failed Fixture Reruns (2/2 plans)
+- [x] Phase 4: Failed Fixture Reruns (2/2 plans) (completed 2026-02-28)
   - [x] 04-01: Implement failed-fixture artifact parsing and rerun selection mode
   - [x] 04-02: Wire rerun mode into smoke command + CI-safe error handling
 
@@ -102,4 +102,4 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 |-----------|--------|-----------------|---------|
 | v1.0 Flashscore USA Migration | Complete | 1/1 | 2026-02-28 |
 | v1.1 Reliability Hardening | Complete | 2/2 | 2026-02-28 |
-| v1.2 Reliability Operations | Planned | 0/3 | - |
+| v1.2 Reliability Operations | In Progress | 1/3 | - |
