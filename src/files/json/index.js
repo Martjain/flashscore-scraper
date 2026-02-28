@@ -18,7 +18,10 @@ export const writeJsonToFile = (data, fileName, asArray) => {
 };
 
 const toArray = (data) =>
-  Object.entries(data).map(([matchId, matchData]) => ({
+  Object.entries(data ?? {}).map(([matchId, matchData]) => ({
     matchId,
-    ...structuredClone(matchData),
+    ...(isObject(matchData) ? structuredClone(matchData) : {}),
   }));
+
+const isObject = (value) =>
+  value !== null && typeof value === "object" && !Array.isArray(value);

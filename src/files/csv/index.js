@@ -21,22 +21,30 @@ export const writeCsvToFile = (data, fileName) => {
   });
 };
 
-const convertDataToCsv = (data) =>
+const convertDataToCsv = (data = {}) =>
   Object.keys(data).map((matchId) => {
     const { stage, status, date, home, away, result, information, statistics } =
-      data[matchId];
+      data[matchId] ?? {};
     const informationObject = {};
     const statisticsObject = {};
+    const informationEntries = Array.isArray(information) ? information : [];
+    const statisticsEntries = Array.isArray(statistics) ? statistics : [];
 
-    information.forEach((info) => {
-      informationObject[info.category.toLowerCase().replace(/ /g, "_")] =
-        info.value;
+    informationEntries.forEach((info) => {
+      const category = info?.category;
+      if (typeof category !== "string") return;
+
+      informationObject[category.toLowerCase().replace(/ /g, "_")] =
+        info?.value ?? null;
     });
 
-    statistics.forEach((stat) => {
-      statisticsObject[stat.category.toLowerCase().replace(/ /g, "_")] = {
-        home: stat.homeValue,
-        away: stat.awayValue,
+    statisticsEntries.forEach((stat) => {
+      const category = stat?.category;
+      if (typeof category !== "string") return;
+
+      statisticsObject[category.toLowerCase().replace(/ /g, "_")] = {
+        home: stat?.homeValue ?? null,
+        away: stat?.awayValue ?? null,
       };
     });
 
