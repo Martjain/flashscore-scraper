@@ -14,9 +14,9 @@ Requirements for milestone v1.1 Reliability Hardening. Each maps to exactly one 
 
 ### Smoke Verification
 
-- [ ] **RELY-03**: User can run an automated smoke suite that verifies the country -> league -> season -> match extraction flow for representative fixtures.
+- [x] **RELY-03**: User can run an automated smoke suite that verifies the country -> league -> season -> match extraction flow for representative fixtures.
 - [ ] **RELY-04**: User can run schema compatibility validation as a required step in the smoke workflow so output contract drift fails the run.
-- [ ] **RELY-05**: User can inspect a machine-readable smoke result artifact listing pass/fail status per fixture.
+- [x] **RELY-05**: User can inspect a machine-readable smoke result artifact listing pass/fail status per fixture.
 
 ### CI Monitoring
 
@@ -48,9 +48,9 @@ Explicitly excluded from v1.1 scope.
 |-------------|-------|--------|
 | RELY-01 | Phase 2 | Complete |
 | RELY-02 | Phase 2 | Complete |
-| RELY-03 | Phase 3 | Pending |
+| RELY-03 | Phase 3 | Complete |
 | RELY-04 | Phase 3 | Pending |
-| RELY-05 | Phase 3 | Pending |
+| RELY-05 | Phase 3 | Complete |
 | RELY-06 | Phase 3 | Pending |
 
 **Coverage:**
