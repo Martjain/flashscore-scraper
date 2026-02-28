@@ -3,6 +3,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { chromium } from "playwright";
 import { parseSmokeReliabilityArguments } from "../src/cli/arguments/index.js";
+import { sendFailureAlert } from "../src/reliability/alerts/index.js";
 import { persistSmokeReport } from "../src/reliability/smoke/reporting.js";
 import {
   buildSmokeSchemaPayload,
@@ -139,6 +140,36 @@ const printRunSummary = (result, options = {}) => {
   }
 
   console.info(`RESULT: ${result.result}`);
+};
+
+const emitSmokeFailureAlert = async (result, report = null) => {
+  try {
+    const alertResult = await sendFailureAlert({
+      source: "smoke",
+      result,
+      metadata: {
+        artifactPath: report?.latestPath || null,
+        historyPath: report?.historyPath || null,
+      },
+    });
+
+    if (alertResult.skipped || alertResult.sent) {
+      return;
+    }
+
+    console.warn(
+      [
+        "WARNING: smoke failure alert delivery failed",
+        `reason=${alertResult.error || "unknown"}`,
+        `status=${alertResult.statusCode ?? "n/a"}`,
+        `durationMs=${alertResult.durationMs ?? 0}`,
+      ].join(" | ")
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "unknown_alert_error";
+    console.warn(`WARNING: smoke failure alert delivery failed | reason=${message}`);
+  }
 };
 
 const buildRunnerFailure = (error, options = {}) => {
@@ -363,6 +394,7 @@ const run = async () => {
       ...finalResult,
       report,
     };
+    await emitSmokeFailureAlert(enrichedResult, report);
 
     if (!options.quiet) {
       console.info(`Report: ${report.latestPath}`);
@@ -399,8 +431,9 @@ const run = async () => {
             }
           : null),
     });
+    let report = null;
     try {
-      const report = await persistSmokeReport(failureResult, {
+      report = await persistSmokeReport(failureResult, {
         reportPath: options.report,
         keepHistory: 30,
       });
@@ -412,6 +445,7 @@ const run = async () => {
         reportError instanceof Error ? reportError.message : "unknown_report_error";
       console.error(`Smoke reporting failed: ${message}`);
     }
+    await emitSmokeFailureAlert(failureResult, report);
 
     printRunSummary(failureResult, { quiet: options.quiet });
     process.exitCode = 1;
