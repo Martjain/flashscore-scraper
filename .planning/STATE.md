@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Reliability Operations
-status: milestone_initialized
-last_updated: "2026-02-28T06:47:00Z"
+status: phase_execution_in_progress
+last_updated: "2026-02-28T19:52:00Z"
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 12
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -23,17 +23,17 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 4 of 6 (Failed Fixture Reruns)
-Plan: none active
-Status: Milestone initialized, ready for phase discussion/planning
-Last activity: 2026-02-28 — Created roadmap for milestone v1.2 Reliability Operations
+Plan: 04-01 complete, 04-02 pending
+Status: Phase 4 execution in progress
+Last activity: 2026-02-28 — Completed plan 04-01 rerun fixture selection foundation
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 58%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 9.7 min
+- Total plans completed: 7
+- Average duration: 8.5 min
 - Total execution time: 1.0 hours
 
 **By Phase:**
@@ -43,6 +43,7 @@ Progress: [█████░░░░░] 50%
 | 1 | 2 | 12 min | 6 min |
 | 2 | 2 | 29 min | 14.5 min |
 | 3 | 2 | 17 min | 8.5 min |
+| 4 | 1 | 1 min | 1 min |
 
 **Recent Trend:**
 - Last 5 plans: 5 complete (all successful)
@@ -66,6 +67,8 @@ Recent decisions affecting current work:
 - [Phase 03]: Require `validate:schema` gate for live smoke pass status
 - [Phase 03]: Use shared `npm run smoke:reliability` command for local and CI reliability runs
 - [Milestone v1.2 init]: Focus scope on rerun, alerting, and rotating matrix capabilities
+- [Phase 04]: Rerun preflight must derive candidates from artifact `fixtures[]` fail entries only
+- [Phase 04]: Rerun CLI rejects ambiguous `--rerun-failed` + `--fixture` combinations
 
 ### Pending Todos
 
@@ -78,5 +81,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Milestone v1.2 requirements and roadmap created
-Resume file: .planning/ROADMAP.md
+Stopped at: Phase 4 execution after plan 04-01
+Resume file: .planning/phases/04-failed-fixture-reruns/04-02-PLAN.md

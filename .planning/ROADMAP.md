@@ -84,8 +84,8 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 ### 📋 v1.2 Reliability Operations (Planned)
 
-- [ ] Phase 4: Failed Fixture Reruns (0/2 plans)
-  - [ ] 04-01: Implement failed-fixture artifact parsing and rerun selection mode
+- [ ] Phase 4: Failed Fixture Reruns (1/2 plans)
+  - [x] 04-01: Implement failed-fixture artifact parsing and rerun selection mode
   - [ ] 04-02: Wire rerun mode into smoke command + CI-safe error handling
 
 - [ ] Phase 5: Reliability Failure Alerts (0/2 plans)
