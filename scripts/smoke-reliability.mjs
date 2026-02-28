@@ -1,7 +1,16 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import { spawn } from "node:child_process";
 import { chromium } from "playwright";
 import { parseSmokeReliabilityArguments } from "../src/cli/arguments/index.js";
 import { persistSmokeReport } from "../src/reliability/smoke/reporting.js";
-import { runSmokeSuite } from "../src/reliability/smoke/run-smoke-suite.js";
+import {
+  buildSmokeSchemaPayload,
+  runSmokeSuite,
+} from "../src/reliability/smoke/run-smoke-suite.js";
+
+const DEFAULT_SCHEMA_INPUT_PATH =
+  ".planning/artifacts/smoke/schema-input-latest.json";
 
 const HELP_TEXT = `
 Usage:
@@ -76,7 +85,125 @@ const buildRunnerFailure = (error, options = {}) => {
         error: message,
       },
     ],
-    schemaGate: null,
+    schemaGate: {
+      status: "fail",
+      error: message,
+      command: "runner",
+      inputPath: null,
+    },
+  };
+};
+
+const writeSchemaInputPayload = async (schemaPayload, filePath) => {
+  const absolutePath = path.resolve(filePath);
+  await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+  await fs.writeFile(`${absolutePath}`, `${JSON.stringify(schemaPayload, null, 2)}\n`);
+  return absolutePath;
+};
+
+const runProcess = (command, args) =>
+  new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk.toString();
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString();
+    });
+
+    child.on("error", reject);
+    child.on("close", (code) => {
+      resolve({
+        code,
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+      });
+    });
+  });
+
+const evaluateSchemaGate = async (result, options = {}) => {
+  if (options.dryRun) {
+    return {
+      status: "skipped",
+      error: null,
+      command: null,
+      inputPath: null,
+      diagnostics: "dry_run",
+    };
+  }
+
+  const schemaPayload = buildSmokeSchemaPayload(result);
+  const payloadSize = Object.keys(schemaPayload).length;
+  if (payloadSize === 0) {
+    return {
+      status: "fail",
+      error: "no_schema_candidates",
+      command: "npm run validate:schema",
+      inputPath: null,
+      diagnostics: "No match payloads were collected for schema validation.",
+    };
+  }
+
+  const inputPath = await writeSchemaInputPayload(
+    schemaPayload,
+    options.schemaInputPath || DEFAULT_SCHEMA_INPUT_PATH
+  );
+  const command = "npm run validate:schema --";
+  const response = await runProcess("npm", [
+    "run",
+    "validate:schema",
+    "--",
+    inputPath,
+  ]);
+
+  if (response.code === 0) {
+    return {
+      status: "pass",
+      error: null,
+      command,
+      inputPath,
+      diagnostics: response.stdout || "schema_validation_passed",
+    };
+  }
+
+  return {
+    status: "fail",
+    error: `schema_validation_failed:${response.code}`,
+    command,
+    inputPath,
+    diagnostics: response.stderr || response.stdout || "schema_validation_failed",
+  };
+};
+
+const mergeSchemaGate = (result, schemaGate) => {
+  const schemaFailed = schemaGate.status === "fail";
+  const runFailed = result.summary.failedFixtures > 0;
+  const finalResult = runFailed || schemaFailed ? "fail" : "pass";
+  const issues = [...(result.issues ?? [])];
+
+  if (schemaFailed) {
+    issues.push({
+      fixtureId: "schema-gate",
+      failedStage: "schema",
+      error: schemaGate.error ?? "schema_validation_failed",
+    });
+  }
+
+  return {
+    ...result,
+    result: finalResult,
+    summary: {
+      ...result.summary,
+      result: finalResult,
+      schemaGateStatus: schemaGate.status,
+    },
+    issues,
+    schemaGate,
   };
 };
 
@@ -104,13 +231,17 @@ const run = async () => {
       fixtureIds: options.fixtureIds,
       dryRun: options.dryRun,
     });
+    const schemaGate = await evaluateSchemaGate(result, {
+      dryRun: options.dryRun,
+    });
+    const finalResult = mergeSchemaGate(result, schemaGate);
 
-    const report = await persistSmokeReport(result, {
+    const report = await persistSmokeReport(finalResult, {
       reportPath: options.report,
       keepHistory: 30,
     });
     const enrichedResult = {
-      ...result,
+      ...finalResult,
       report,
     };
 
@@ -144,4 +275,3 @@ const run = async () => {
 };
 
 run();
-

@@ -53,6 +53,7 @@ const createFixtureFailure = ({
   failedStage,
   error,
   diagnostics = {},
+  matchChecks = [],
 }) => {
   const errorMessage = error instanceof Error ? error.message : String(error);
   return {
@@ -64,7 +65,7 @@ const createFixtureFailure = ({
     durationMs: Date.now() - startedAt,
     counters,
     diagnostics,
-    matchChecks: [],
+    matchChecks,
   };
 };
 
@@ -126,12 +127,14 @@ const collectMatchChecks = async ({ context, matchLinks, maxMatches }) => {
         matchId,
         status: hasCoreData ? "pass" : "fail",
         reason: hasCoreData ? null : "empty_team_payload",
+        data: hasCoreData ? data : null,
       });
     } catch (error) {
       checks.push({
         matchId: matchLink?.id ?? null,
         status: "fail",
         reason: error instanceof Error ? error.message : "match_data_error",
+        data: null,
       });
     }
   }
@@ -285,6 +288,7 @@ const runFixtureSmoke = async ({ context, fixture, maxMatches, timeoutMs }) => {
         failedStage: "match-data",
         error: failedMatch.reason,
         diagnostics,
+        matchChecks,
       });
     }
 
@@ -348,6 +352,22 @@ const buildIssues = (fixtures) =>
       failedStage: fixture.failedStage,
       error: fixture.error,
     }));
+
+export const buildSmokeSchemaPayload = (result) => {
+  const fixtures = Array.isArray(result?.fixtures) ? result.fixtures : [];
+  const entries = fixtures.flatMap((fixture) =>
+    (fixture.matchChecks ?? []).filter((check) => check.status === "pass" && check.data)
+  );
+
+  return entries.reduce((accumulator, entry, index) => {
+    const matchId = entry.data?.matchId ?? entry.matchId ?? `fixture-${index + 1}`;
+    accumulator[matchId] = {
+      ...entry.data,
+      matchId,
+    };
+    return accumulator;
+  }, {});
+};
 
 export const runSmokeSuite = async (options = {}) => {
   const sample = normalizePositiveInteger(options.sample, DEFAULT_SMOKE_SAMPLE);
@@ -431,4 +451,3 @@ export const runSmokeSuite = async (options = {}) => {
     schemaGate: null,
   };
 };
-
