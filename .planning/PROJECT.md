@@ -36,7 +36,11 @@ Users can reliably extract structured league match results and statistics into r
 ### Active
 
 - [ ] **RELY-01**: Add selector health checks and fallback drift detection
-- [ ] **RELY-02**: Add automated end-to-end smoke checks for representative leagues
+- [ ] **RELY-02**: Add selector drift diagnostics output for failed contracts
+- [ ] **RELY-03**: Add automated end-to-end smoke checks for representative leagues
+- [ ] **RELY-04**: Gate smoke workflow with schema compatibility validation
+- [ ] **RELY-05**: Emit machine-readable smoke artifact for fixture-level triage
+- [ ] **RELY-06**: Run reliability smoke checks on schedule and manual CI trigger
 
 ### Out of Scope
 
@@ -68,4 +72,4 @@ Users can reliably extract structured league match results and statistics into r
 | Restrict season extraction to league archive selectors | Prevent global competition links from polluting season lists | ✓ Fixed with debug verification in v1.0 |
 
 ---
-*Last updated: 2026-02-28 after v1.1 milestone initialization*
+*Last updated: 2026-02-28 after v1.1 requirements and roadmap definition*
