@@ -6,7 +6,7 @@ export const getMatchLinks = async (context, leagueSeasonUrl, type) => {
   const LOAD_MORE_SELECTOR =
     '[data-testid="wcl-buttonLink"], .event__more--static';
   const MATCH_SELECTOR =
-    ".event__match.event__match--static.event__match--twoLine, .event__match[id^='g_1_']";
+    ".event__match.event__match--static.event__match--twoLine, .event__match[id^='g_']";
   const CLICK_DELAY = 600;
   const MAX_EMPTY_CYCLES = 4;
 
@@ -51,7 +51,7 @@ export const getMatchLinks = async (context, leagueSeasonUrl, type) => {
         ".event__match.event__match--static.event__match--twoLine, .event__match[id^='g_1_']"
       )
     ).map((element) => {
-      const id = element?.id?.replace("g_1_", "");
+      const id = element?.id?.replace(/^g_\d+_/, "");
       const url =
         element.querySelector("a.eventRowLink, a[href*='/match/']")?.href ??
         null;

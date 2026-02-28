@@ -16,7 +16,7 @@ export const getListOfLeagues = async (context, countryId) => {
   ];
   await waitForSelectorSafe(page, selectors, TIMEOUT);
 
-  const listOfLeagues = await page.evaluate((countrySlug, selectors) => {
+  const listOfLeagues = await page.evaluate(({ countrySlug, selectors }) => {
     const toSegments = (href) => {
       try {
         return new URL(href, window.location.origin).pathname
@@ -48,7 +48,7 @@ export const getListOfLeagues = async (context, countryId) => {
     return Array.from(uniqueLeagues.values()).sort((a, b) =>
       a.name.localeCompare(b.name)
     );
-  }, countrySlug, selectors);
+  }, { countrySlug, selectors });
 
   await page.close();
   return listOfLeagues;

@@ -9,7 +9,7 @@ const COUNTRY_SELECTORS = [
 ];
 
 export const getListOfCountries = async (context) => {
-  const page = await openPageAndNavigate(context, BASE_URL);
+  const page = await openPageAndNavigate(context, `${BASE_URL}/football/`);
   await waitForSelectorSafe(page, COUNTRY_SELECTORS, TIMEOUT);
 
   const listOfCountries = await page.evaluate((selectors) => {
