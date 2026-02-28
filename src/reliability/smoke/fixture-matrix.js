@@ -38,6 +38,9 @@ const normalizeFixtureId = (value = "") => value.toString().trim().toLowerCase()
 
 export const getSmokeFixtureMatrix = () => SMOKE_FIXTURES.map((fixture) => ({ ...fixture }));
 
+export const getSmokeFixtureIds = () =>
+  getSmokeFixtureMatrix().map((fixture) => normalizeFixtureId(fixture.fixtureId));
+
 export const getFixtureById = (fixtureId) =>
   getSmokeFixtureMatrix().find(
     (fixture) => fixture.fixtureId === normalizeFixtureId(fixtureId)
