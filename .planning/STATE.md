@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: Flashscore USA Migration
-status: milestone_complete
-last_updated: "2026-02-28T03:53:30Z"
+milestone: v1.1
+milestone_name: Reliability Hardening
+status: defining_requirements
+last_updated: "2026-02-28T00:00:00Z"
 progress:
-  total_phases: 1
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -18,33 +18,33 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Users can reliably extract structured league match results and statistics from Flashscore pages into reusable local data files.
-**Current focus:** Milestone v1.0 archived - ready to define v1.1
+**Current focus:** Milestone v1.1 reliability hardening requirements and roadmap definition
 
 ## Current Position
 
-Phase: 1 of 1 (Flashscore USA Migration)
-Plan: 2 of 2 in current phase
-Status: Milestone complete
-Last activity: 2026-02-28 — Archived v1.0 milestone artifacts and prepared next-milestone context
+Phase: Not started (defining requirements)
+Plan: -
+Status: Defining requirements
+Last activity: 2026-02-28 — Milestone v1.1 started
 
-Progress: [██████████] 100%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 6 min
-- Total execution time: 0.2 hours
+- Total plans completed: 0
+- Average duration: -
+- Total execution time: 0 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 | 2 | 12 min | 6 min |
+| - | - | - | - |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (11 min), 01-02 (1 min)
-- Trend: Stable
+- Last 5 plans: n/a (new milestone)
+- Trend: n/a
 
 ## Accumulated Context
 
@@ -70,5 +70,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed v1.0 milestone archival and documentation updates
+Stopped at: Started v1.1 milestone planning workflow
 Resume file: None

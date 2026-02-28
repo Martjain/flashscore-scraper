@@ -8,6 +8,15 @@ FlashscoreScraping is a Node.js + Playwright CLI that scrapes soccer match data 
 
 Users can reliably extract structured league match results and statistics into reusable local data files with stable schema contracts.
 
+## Current Milestone: v1.1 Reliability Hardening
+
+**Goal:** Improve scraper reliability by proactively detecting selector drift and continuously validating the end-to-end extraction flow.
+
+**Target features:**
+- Selector health checks with fallback drift detection
+- Automated smoke checks across representative leagues/seasons
+- Schema compatibility verification integrated into smoke workflow
+
 ## Current State
 
 - **Shipped milestone:** v1.0 Flashscore USA Migration (2026-02-28)
@@ -35,11 +44,6 @@ Users can reliably extract structured league match results and statistics into r
 - Rewriting scraper runtime/framework
 - CLI redesign unrelated to reliability and compatibility goals
 
-## Next Milestone Goals
-
-1. Build proactive selector health checks so upstream DOM changes are detected early.
-2. Add repeatable smoke tests that verify country→league→season→match flow and schema output.
-
 ## Context
 
 - Codebase size: ~1200 LOC (`src/` + `scripts/` JavaScript modules)
@@ -64,4 +68,4 @@ Users can reliably extract structured league match results and statistics into r
 | Restrict season extraction to league archive selectors | Prevent global competition links from polluting season lists | ✓ Fixed with debug verification in v1.0 |
 
 ---
-*Last updated: 2026-02-28 after v1.0 milestone completion*
+*Last updated: 2026-02-28 after v1.1 milestone initialization*
