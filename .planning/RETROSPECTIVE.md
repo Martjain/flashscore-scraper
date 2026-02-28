@@ -72,6 +72,42 @@
 
 ---
 
+## Milestone: v1.2 — Reliability Operations
+
+**Shipped:** 2026-02-28
+**Phases:** 3 | **Plans:** 6 | **Sessions:** 1
+
+### What Was Built
+- Artifact-driven failed-fixture rerun mode and rerun-specific CI dispatch controls.
+- Shared webhook failure-alert module with normalized payload contract.
+- End-of-run alert integration for smoke and selector-health commands.
+- Deterministic regional matrix rotation for scheduled extended smoke coverage.
+
+### What Worked
+- Layered rollout (foundation -> orchestration) kept each reliability feature testable in isolation.
+- Reusing existing smoke/report pipelines prevented contract drift during feature additions.
+- Deterministic rotation and selection provenance improved reproducibility of CI investigations.
+
+### What Was Inefficient
+- Milestone audit artifact was again skipped before archive completion.
+- The summary extractor did not populate one-liners, requiring manual accomplishment curation.
+
+### Patterns Established
+- Reliability feature additions should preserve exit-code authority while treating notification failures as warnings.
+- Selection/rerun modes should persist machine-readable provenance for operator replay.
+- Scheduled extended coverage can remain deterministic via ISO-week keyed rotation.
+
+### Key Lessons
+1. Operational reliability work benefits from strict preflight checks and explicit operator fallback guidance.
+2. Shared alert contracts across command entrypoints reduce drift and simplify downstream tooling.
+
+### Cost Observations
+- Model mix: 0% opus, 100% sonnet, 0% haiku
+- Sessions: 1
+- Notable: Most effort was spent on integration hardening and deterministic behavior guarantees.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -80,6 +116,7 @@
 |-----------|----------|--------|------------|
 | v1.0 | 1 | 1 | Established runtime-first verification and persisted debug session tracking |
 | v1.1 | 1 | 2 | Added reliability guardrail stack (selector health + smoke + CI schema gate) |
+| v1.2 | 1 | 3 | Added reliability operations tooling (rerun recovery, alerting, rotating regional coverage) |
 
 ### Cumulative Quality
 
@@ -87,6 +124,7 @@
 |-----------|-------|----------|-------------------|
 | v1.0 | Runtime smoke + schema checks | Targeted (flow and contract) | 1 (`scripts/validate-flashscore-schema.mjs`) |
 | v1.1 | Selector health + live smoke + CI schedule | Reliability baseline across critical path | 2 (`scripts/health-selectors.mjs`, `scripts/smoke-reliability.mjs`) |
+| v1.2 | Failed-fixture rerun + alert integration + regional rotation checks | Operational reliability coverage and incident response paths | 1 (`src/reliability/smoke/rerun-fixtures.js`) |
 
 ### Top Lessons (Verified Across Milestones)
 

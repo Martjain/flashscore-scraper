@@ -1,5 +1,24 @@
 # Milestones
 
+## v1.2 Reliability Operations (Shipped: 2026-02-28)
+
+**Phases completed:** 3 phases, 6 plans, 18 tasks
+**Execution stats:** 33 commits, 39 files changed, +3548/-492 lines, ~102 minutes execution window
+
+**Key accomplishments:**
+- Added artifact-driven failed-fixture rerun mode with strict CLI validation and preflight diagnostics.
+- Wired rerun execution into smoke orchestration and CI dispatch with clear failure/fallback guidance.
+- Added shared failure alerting foundation with deterministic payload schema and non-blocking webhook delivery.
+- Integrated end-of-run smoke and selector-health alerts while preserving command exit semantics.
+- Added deterministic region-aware smoke matrix rotation controls (`--matrix-mode`, `--rotation-key`) and selection provenance in artifacts.
+- Enabled scheduled weekly extended regional coverage in CI while keeping manual/default smoke runs bounded.
+
+### Known Gaps
+
+- No dedicated milestone audit file (`.planning/v1.2-MILESTONE-AUDIT.md`) was created before archival. Milestone accepted as shipped based on complete phase summaries and verification evidence.
+
+---
+
 ## v1.1 Reliability Hardening (Shipped: 2026-02-28)
 
 **Phases completed:** 2 phases, 4 plans, 6 tasks

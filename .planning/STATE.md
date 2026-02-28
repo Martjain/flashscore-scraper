@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Reliability Operations
-status: phase_completed
-last_updated: "2026-02-28T21:16:30Z"
+status: milestone_completed
+last_updated: "2026-02-28T22:48:00Z"
 progress:
   total_phases: 6
   completed_phases: 6
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Users can reliably extract structured league match results and statistics from Flashscore pages into reusable local data files.
-**Current focus:** Milestone closeout after Phase 6 completion
+**Current focus:** Planning next milestone requirements and roadmap
 
 ## Current Position
 
-Phase: 6 of 6 (Rotating Regional Matrix)
+Phase: milestone closeout complete
 Plan: none active
-Status: Phase 6 verified and complete, ready for milestone completion workflow
-Last activity: 2026-02-28 — Completed and verified deterministic rotating regional smoke matrix rollout
+Status: v1.2 archived and tagged; awaiting next milestone definition
+Last activity: 2026-02-28 — Archived v1.2 roadmap/requirements and updated project baseline
 
 Progress: [██████████] 100%
 
@@ -92,5 +92,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Phase 6 complete and verified; milestone closeout pending
+Stopped at: v1.2 milestone archived; ready for next milestone kickoff
 Resume file: .planning/ROADMAP.md
