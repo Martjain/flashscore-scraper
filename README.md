@@ -1,196 +1,165 @@
 <h1 align="center">
-  <img src=".github/Logo.svg" alt="FlashscoreScraping logo" width="150px" />
+  <img src=".github/Logo.svg" alt="FlashscoreScraping logo" width="120" />
 </h1>
 
-<p align="center">
-  <b>Scrape match results, statistics, and league data from Flashscore</b>
-</p>
+# FlashscoreScraping
 
-<p align="center">
-  <img src="https://img.shields.io/badge/node-%3E=18.0.0-green?style=flat-square" />
-  <img src="https://img.shields.io/badge/scraper-playwright-blue?style=flat-square" />
-  <img src="https://img.shields.io/badge/output-JSON%20%7C%20CSV-orange?style=flat-square" />
-</p>
+Playwright-based scraping and reliability tooling for extracting soccer match data from `flashscoreusa.com` with stable schema and CI smoke coverage.
 
-<p align="center">
-  <img src=".github/FlashscoreScraping.gif" alt="Demo" width="600px" />
-</p>
+## What This Repository Includes
 
-## About the Project
+- Interactive/main scraper flow (`npm run start`) for country -> league -> season selection.
+- JSON schema validator (`npm run validate:schema`) for output compatibility checks.
+- Selector health contracts and probes (`npm run health:selectors`) for early DOM drift detection.
+- End-to-end reliability smoke runner (`npm run smoke:reliability`) with required schema gating.
+- CI reliability workflow (`.github/workflows/reliability-smoke.yml`) with manual + scheduled execution.
 
-[Flashscore](https://flashscore.com) is one of the most popular platforms for real-time sports results, statistics, and standings, but it has **no official API**.
+## Requirements
 
-**FlashscoreScraping** bridges this gap by extracting structured match data directly from the site, enabling use in:
+- Node.js 18+
+- npm
+- Playwright Chromium
 
-- 🔎 Tracking favorite teams and leagues
-- 📊 Building analytics dashboards
-- 🧠 Research & academic datasets
-- 🤖 Bots, automations, ML training, data pipelines
-
-## Getting Started
+## Installation
 
 ```bash
 git clone https://github.com/gustavofariaa/FlashscoreScraping.git
 cd FlashscoreScraping
 npm install
-npx playwright install-deps chromium
+npx playwright install --with-deps chromium
+```
+
+## NPM Scripts
+
+| Script | Purpose |
+|---|---|
+| `npm run start` | Run main scraping CLI |
+| `npm run validate:schema -- <file>` | Validate output JSON contract |
+| `npm run health:selectors -- [flags]` | Probe selector contracts and emit diagnostics |
+| `npm run smoke:reliability -- [flags]` | Run bounded traversal smoke with required schema gate |
+
+## Main Scraper Usage
+
+Run interactive mode:
+
+```bash
 npm run start
 ```
 
-## Command-Line Parameters
-
-| Parameter      | Default |       Required       | Description                                                                        |
-| :------------- | :-----: | :------------------: | :--------------------------------------------------------------------------------- |
-| `country`      |    -    | ✅ if using `league` | Country to scrape (e.g. `brazil`)                                                  |
-| `league`       |    -    |          ❌          | Specific league to scrape (e.g. `serie-a`)                                         |
-| `fileType`     | `json`  |          ❌          | Output format: `json`, `json-array` or `csv`                                       |
-| `concurrency`  |  `10`   |          ❌          | Number of matches scraped in parallel. Higher = faster, but heavier on CPU/network |
-| `saveInterval` |  `10`   |          ❌          | Number of matches processed before data is saved to disk                           |
-| `headless`     | `true`  |          ❌          | Show browser UI (`false`) or run hidden (`true`)                                   |
-
-### Examples
-
-Scrape Brazilian Serie A 2023 into JSON:
+Run with direct arguments:
 
 ```bash
-npm run start country=brazil league=serie-a-2023 fileType=json
+npm run start country=argentina league=liga-profesional fileType=json-array
 ```
 
-Scrape Premier League 22/23 with visible browser and export CSV:
+Supported argument keys:
+
+- `country`
+- `league`
+- `fileType` (`json`, `json-array`, `csv`)
+- `concurrency`
+- `saveInterval`
+- `headless` (`true`/`false`)
+
+## Schema Validation
+
+Validate a generated data file:
 
 ```bash
-npm run start country=england league=premier-league-2022-2023 headless=false fileType=csv
+npm run validate:schema -- src/data/example.array.json
 ```
 
-## Schema Compatibility Validation
-
-After generating an output file, validate that required JSON fields are still compatible with current consumers:
+Optional sample size:
 
 ```bash
-npm run validate:schema -- src/data/usa_nfl.array.json
-```
-
-Optional: limit checks to the first `N` entries:
-
-```bash
-npm run validate:schema -- src/data/usa_nfl.array.json --sample 10
+npm run validate:schema -- src/data/example.array.json --sample 10
 ```
 
 ## Selector Health Check
 
-Run a preflight selector reliability check before long scraping runs:
+Run contract probes for selected scopes:
 
 ```bash
 npm run health:selectors -- --scope countries --scope leagues --sample 1
 ```
 
-Strict mode is intended for CI and fails when fallback selectors are used:
+Strict mode (fails on fallback selector usage):
 
 ```bash
 npm run health:selectors -- --strict --scope match-list --scope match-detail --sample 1 --fail-fast
 ```
 
-By default, reports are written to `.planning/artifacts/selector-health/latest.json` and timestamped history files are retained automatically (latest + last 30 runs).
+Artifacts:
+
+- `.planning/artifacts/selector-health/latest.json`
+- Timestamped history files under `.planning/artifacts/selector-health/`
 
 ## Reliability Smoke Automation
 
-Run a bounded end-to-end smoke that verifies the extraction path:
-`country -> league -> season -> match`.
+Run bounded end-to-end smoke (country -> league -> season -> match):
 
 ```bash
 npm run smoke:reliability -- --sample 2 --max-matches 1
 ```
 
-Behavior notes:
-- Live smoke runs always execute a required schema gate with `npm run validate:schema -- <schema-input-file>` before reporting `RESULT: pass`.
-- Use runtime-budget flags like `--sample`, `--max-matches`, `--timeout-ms`, and `--fixture` to keep runs CI-safe.
-- Use `--dry-run` to validate fixture selection and reporting flow without browser/network work.
+Dry run (no browser/network):
 
-Artifacts:
-- Smoke result: `.planning/artifacts/smoke/latest.json`
-- Schema gate input snapshot: `.planning/artifacts/smoke/schema-input-latest.json`
-- Timestamped history files are retained in `.planning/artifacts/smoke/`
+```bash
+npm run smoke:reliability -- --dry-run --sample 1
+```
 
-CI integration:
-- Workflow file: `.github/workflows/reliability-smoke.yml`
-- Triggers:
-  - `workflow_dispatch` for manual execution
-  - `schedule` for weekly automated monitoring
-
-CI-focused strict command example:
+Target a specific fixture:
 
 ```bash
 npm run smoke:reliability -- --sample 1 --max-matches 1 --fixture argentina-liga-profesional --timeout-ms 120000
 ```
 
-## Data Structure
+### Smoke Guarantees
 
-Each match result includes:
+- For live runs, `validate:schema` is a required gate before `RESULT: pass`.
+- A machine-readable artifact is always written before exit.
+- Exit code is non-zero for traversal failures or schema-gate failures.
+
+Smoke artifacts:
+
+- `.planning/artifacts/smoke/latest.json`
+- `.planning/artifacts/smoke/schema-input-latest.json`
+- Timestamped history files under `.planning/artifacts/smoke/`
+
+## CI Reliability Workflow
+
+Workflow file: `.github/workflows/reliability-smoke.yml`
+
+Triggers:
+
+- `workflow_dispatch`
+- Weekly `schedule`
+
+The job installs dependencies + Playwright Chromium, runs `npm run smoke:reliability`, and uploads smoke artifacts for both pass/fail runs.
+
+## Output Shape
+
+Main output and schema-gate payloads follow this structure per match:
 
 ```json
 {
-  "IHCq3ARL": {
-    "stage": "FINAL",
-    "date": "20.02.2022 16:00",
-    "status": "AFTER PENALTIES",
-    "home": {
-      "name": "Atletico-MG",
-      "image": "https://static.flashscore.com/res/image/data/WbSJHDh5-pCk2vaSD.png"
-    },
-    "away": {
-      "name": "Flamengo RJ",
-      "image": "https://static.flashscore.com/res/image/data/ADvIaiZA-2R2JjDQC.png"
-    },
-    "result": {
-      "home": "3",
-      "away": "2",
-      "regulationTime": "2-2",
-      "penalties": "8-7"
-    },
-    "information": [
-      {
-        "category": "Referee",
-        "value": "Daronco A. (Bra)"
-      },
-      {
-        "category": "Venue",
-        "value": "Arena Pantanal (Cuiabá)"
-      },
-      {
-        "category": "Capacity",
-        "value": "44 000"
-      }
-    ],
-    "statistics": [
-      {
-        "category": "Ball Possession",
-        "homeValue": "57%",
-        "awayValue": "43%"
-      }
-      // statistics are dynamic and may vary per match
-    ]
-  }
+  "matchId": "YNiVIdYA",
+  "stage": "ROUND 8",
+  "date": "02:45 PM, February 28, 2026",
+  "status": "",
+  "home": { "name": "Boca Juniors", "image": "..." },
+  "away": { "name": "Gimnasia Mendoza", "image": "..." },
+  "result": {
+    "home": null,
+    "away": null,
+    "regulationTime": null,
+    "penalties": null
+  },
+  "information": [{ "category": "Venue", "value": "..." }],
+  "statistics": [{ "category": "Ball Possession", "homeValue": "57%", "awayValue": "43%" }]
 }
 ```
 
-### Field Reference
+## License
 
-| Field           | Type     | Description                                            |
-| :-------------- | :------- | :----------------------------------------------------- |
-| `matchId`       | `string` | Unique identifier for the match                        |
-| `stage`         | `string` | Competition phase or round (e.g., `QUARTER-FINALS`)    |
-| `status`        | `string` | Current or final state of the match (e.g., `FINISHED`) |
-| `date`          | `string` | Full match date & time (dd.mm.yyyy hh:mm)              |
-| `home` / `away` | `object` | Team data (name + logo URL)                            |
-| `result`        | `object` | Match score data (may be empty if not available)       |
-| `information`   | `array`  | Extra match info (referee, stadium, etc.)              |
-| `statistics`    | `array`  | Variable-length list of stats (depends on match)       |
-
-## Issues & Contribution
-
-Found a bug? Want to suggest a feature? [Open an issue](https://github.com/gustavofariaa/FlashscoreScraping/issues)
-
-## Support
-
-If this project helped you, consider leaving a star. It motivates development and helps more people find the repo.
-
+UNLICENSED
