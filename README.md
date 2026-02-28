@@ -1,10 +1,13 @@
-<h1 align="center">
-  <img src=".github/Logo.svg" alt="FlashscoreScraping logo" width="120" />
-</h1>
-
 # FlashscoreScraping
 
 Playwright-based scraping and reliability tooling for extracting soccer match data from `flashscoreusa.com` with stable schema and CI smoke coverage.
+
+## Fork Notice
+
+This repository is a fork of the original project:
+`https://github.com/gustavofariaa/FlashscoreScraping`
+
+This fork maintains its own roadmap and reliability hardening changes.
 
 ## What This Repository Includes
 
@@ -23,7 +26,7 @@ Playwright-based scraping and reliability tooling for extracting soccer match da
 ## Installation
 
 ```bash
-git clone https://github.com/gustavofariaa/FlashscoreScraping.git
+git clone https://github.com/Martjain/flashscore-scraper.git
 cd FlashscoreScraping
 npm install
 npx playwright install --with-deps chromium
