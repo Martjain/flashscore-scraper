@@ -60,7 +60,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 - [ ] Phase 2: Selector Health Contracts
   - [x] 02-01: Implement selector contract registry and fallback map
-  - [ ] 02-02: Implement health-check command with drift diagnostics artifact
+  - [x] 02-02: Implement health-check command with drift diagnostics artifact
 
 - [ ] Phase 3: End-to-End Smoke Automation
   - [ ] 03-01: Build representative fixture smoke runner
