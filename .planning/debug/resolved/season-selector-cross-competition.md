@@ -1,8 +1,8 @@
 ---
-status: awaiting_human_verify
+status: resolved
 trigger: "$gsd-debug i ran npm run start and season shows other data > flashscore-scraping@1.4.0 start > node src/index.js ... Select a country: Mexico ... Select a league: Liga MX ... Select a league season: Africa Cup of Nations / Archive / Asian Cup / Betway Premiership ..."
 created: 2026-02-28T03:37:00Z
-updated: 2026-02-28T03:42:00Z
+updated: 2026-02-28T03:49:58Z
 ---
 
 ## Current Focus
@@ -10,7 +10,7 @@ updated: 2026-02-28T03:42:00Z
 hypothesis: season selector is pulling global soccer anchors instead of archive-season anchors
 test: run Mexico -> Liga MX reproduction and inspect `/soccer/mexico/liga-mx/archive/` DOM
 expecting: archive-only selector should return Liga MX historical seasons only
-next_action: have user verify interactive CLI season list now shows Liga MX seasons only
+next_action: none (issue confirmed resolved by user)
 
 ## Symptoms
 
@@ -47,6 +47,6 @@ started: after soccer-route migration and selector fallback broadening
 
 root_cause: `getListOfSeasons` used broad fallback selectors including `a[href*='/soccer/']`, causing global navigation/competition links to be treated as seasons
 fix: restricted season extraction to archive selectors (`.archiveLatte__season > a`, `div.archive__season > a`, `.archive__row .archive__season a`) and filtered hrefs to match selected sport/country/league slug
-verification: automated reproduction now returns only Liga MX season history (25 entries); no unrelated competitions appear in service output
+verification: automated reproduction returns only Liga MX season history (25 entries); user confirmed interactive CLI now shows seasons correctly
 files_changed:
   - src/scraper/services/seasons/index.js
