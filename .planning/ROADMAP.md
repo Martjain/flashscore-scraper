@@ -56,7 +56,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 </details>
 
-### 📋 v1.1 Reliability Hardening (Planned)
+### 📋 v1.1 Reliability Hardening (In Progress)
 
 - [x] Phase 2: Selector Health Contracts (2/2 plans) - completed 2026-02-28
   - [x] 02-01: Implement selector contract registry and fallback map
