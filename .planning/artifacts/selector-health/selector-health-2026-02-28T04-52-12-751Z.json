@@ -1,0 +1,60 @@
+{
+  "runId": "selector-health-1772254332750",
+  "startedAt": "2026-02-28T04:51:42.921Z",
+  "completedAt": "2026-02-28T04:52:12.751Z",
+  "durationMs": 29829,
+  "mode": "strict",
+  "strict": true,
+  "failFast": false,
+  "dryRun": false,
+  "sample": 1,
+  "scopes": [
+    "match-list"
+  ],
+  "checks": 1,
+  "criticalFailures": 0,
+  "warnings": 0,
+  "fallbackUsages": 0,
+  "result": "pass",
+  "scopeResults": [
+    {
+      "scope": "match-list",
+      "checks": [
+        {
+          "scope": "match-list",
+          "contractKey": "match-list.rows",
+          "url": "https://www.flashscoreusa.com/soccer/usa/mls/results",
+          "source": "static-fallback",
+          "status": "pass",
+          "criticalFailure": false,
+          "fallbackUsage": false,
+          "warning": false,
+          "matchedSelector": ".event__match.event__match--static.event__match--twoLine",
+          "matchedSelectorIndex": 0,
+          "selectorsTried": [
+            ".event__match.event__match--static.event__match--twoLine"
+          ],
+          "errorReason": null,
+          "durationMs": 1149,
+          "diagnostics": {
+            "scope": "match-list",
+            "contractKey": "match-list.rows",
+            "selectorsTried": [
+              ".event__match.event__match--static.event__match--twoLine"
+            ],
+            "matchedSelector": ".event__match.event__match--static.event__match--twoLine",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/usa/mls/results/",
+            "errorReason": null
+          }
+        }
+      ],
+      "criticalFailures": 0,
+      "warnings": 0,
+      "fallbackUsages": 0,
+      "result": "pass"
+    }
+  ]
+}

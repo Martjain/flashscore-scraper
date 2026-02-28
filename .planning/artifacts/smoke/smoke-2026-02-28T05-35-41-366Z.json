@@ -1,0 +1,144 @@
+{
+  "runId": "smoke-1772256917099",
+  "startedAt": "2026-02-28T05:35:17.099Z",
+  "completedAt": "2026-02-28T05:35:41.152Z",
+  "durationMs": 24053,
+  "result": "fail",
+  "mode": "live",
+  "options": {
+    "sample": 1,
+    "maxMatches": 1,
+    "timeoutMs": 90000,
+    "fixtureIds": [],
+    "dryRun": false
+  },
+  "summary": {
+    "totalFixtures": 1,
+    "passedFixtures": 1,
+    "failedFixtures": 0,
+    "durationMs": 24053,
+    "result": "fail",
+    "schemaGateStatus": "fail"
+  },
+  "fixtures": [
+    {
+      "fixtureId": "argentina-liga-profesional",
+      "fixtureLabel": "Argentina Liga Profesional",
+      "status": "pass",
+      "failedStage": null,
+      "error": null,
+      "durationMs": 24052,
+      "counters": {
+        "countriesDiscovered": 22,
+        "leaguesDiscovered": 0,
+        "seasonsDiscovered": 28,
+        "matchesDiscovered": 478,
+        "matchesChecked": 1
+      },
+      "diagnostics": {
+        "countries": [
+          {
+            "scope": "countries",
+            "contractKey": "countries.links",
+            "selectorsTried": [
+              "#category-left-menu a[href*='/soccer/']"
+            ],
+            "matchedSelector": "#category-left-menu a[href*='/soccer/']",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/",
+            "errorReason": null
+          }
+        ],
+        "leagues": [
+          {
+            "scope": "leagues",
+            "contractKey": "leagues.links",
+            "selectorsTried": [
+              "#category-left-menu a[href*='/soccer/']"
+            ],
+            "matchedSelector": "#category-left-menu a[href*='/soccer/']",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/argentina/",
+            "errorReason": null
+          }
+        ],
+        "leaguesFallback": {
+          "used": true,
+          "leagueUrl": "https://www.flashscoreusa.com/soccer/argentina/liga-profesional/",
+          "reason": "empty_discovery_list"
+        },
+        "seasons": [
+          {
+            "scope": "seasons",
+            "contractKey": "seasons.links",
+            "selectorsTried": [
+              ".archiveLatte__season > a.archiveLatte__text--clickable"
+            ],
+            "matchedSelector": ".archiveLatte__season > a.archiveLatte__text--clickable",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/argentina/liga-profesional/archive/",
+            "errorReason": null
+          }
+        ],
+        "matches": []
+      },
+      "matchChecks": [
+        {
+          "matchId": "ju2SP4oe",
+          "status": "pass",
+          "reason": null,
+          "data": {
+            "matchId": "ju2SP4oe",
+            "stage": "ROUND 8",
+            "date": "02:45 PM, February 28, 2026",
+            "status": "",
+            "home": {
+              "name": "Boca Juniors",
+              "image": "https://static.flashscore.com/res/image/data/h4UwH8Cr-tnwDCzLD.png"
+            },
+            "away": {
+              "name": "Gimnasia Mendoza",
+              "image": "https://static.flashscore.com/res/image/data/WQaBsEXg-Uyu9KPIO.png"
+            },
+            "result": {},
+            "information": [
+              {
+                "category": "Referee",
+                "value": "Dovalo P. (Arg)"
+              },
+              {
+                "category": "Venue",
+                "value": "Estadio Alberto J. Armando (Buenos Aires)"
+              },
+              {
+                "category": "Capacity",
+                "value": "57 200"
+              }
+            ],
+            "statistics": []
+          }
+        }
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "fixtureId": "schema-gate",
+      "failedStage": "schema",
+      "error": "schema_validation_failed:1"
+    }
+  ],
+  "schemaGate": {
+    "status": "fail",
+    "error": "schema_validation_failed:1",
+    "command": "npm run validate:schema --",
+    "inputPath": "/home/martinesfer/Downloads/Workspace/FlashscoreScraping/.planning/artifacts/smoke/schema-input-latest.json",
+    "diagnostics": "Schema validation failed.\n- entry 1 (matchId=ju2SP4oe): missing result.home\n- entry 1 (matchId=ju2SP4oe): missing result.away\n- entry 1 (matchId=ju2SP4oe): missing result.regulationTime\n- entry 1 (matchId=ju2SP4oe): missing result.penalties"
+  }
+}

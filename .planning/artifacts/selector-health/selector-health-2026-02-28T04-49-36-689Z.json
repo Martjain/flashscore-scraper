@@ -1,0 +1,224 @@
+{
+  "runId": "selector-health-1772254176688",
+  "startedAt": "2026-02-28T04:47:34.181Z",
+  "completedAt": "2026-02-28T04:49:36.688Z",
+  "durationMs": 122507,
+  "mode": "default",
+  "strict": false,
+  "failFast": true,
+  "dryRun": false,
+  "sample": 1,
+  "scopes": [
+    "countries",
+    "leagues",
+    "seasons",
+    "match-list",
+    "match-detail"
+  ],
+  "checks": 5,
+  "criticalFailures": 1,
+  "warnings": 0,
+  "fallbackUsages": 0,
+  "result": "fail",
+  "scopeResults": [
+    {
+      "scope": "countries",
+      "checks": [
+        {
+          "scope": "countries",
+          "contractKey": "countries.links",
+          "url": "https://www.flashscoreusa.com/soccer/",
+          "source": "countries-root",
+          "status": "pass",
+          "criticalFailure": false,
+          "fallbackUsage": false,
+          "warning": false,
+          "matchedSelector": "#category-left-menu a[href*='/soccer/']",
+          "matchedSelectorIndex": 0,
+          "selectorsTried": [
+            "#category-left-menu a[href*='/soccer/']"
+          ],
+          "errorReason": null,
+          "durationMs": 5006,
+          "diagnostics": {
+            "scope": "countries",
+            "contractKey": "countries.links",
+            "selectorsTried": [
+              "#category-left-menu a[href*='/soccer/']"
+            ],
+            "matchedSelector": "#category-left-menu a[href*='/soccer/']",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/",
+            "errorReason": null
+          }
+        }
+      ],
+      "criticalFailures": 0,
+      "warnings": 0,
+      "fallbackUsages": 0,
+      "result": "pass"
+    },
+    {
+      "scope": "leagues",
+      "checks": [
+        {
+          "scope": "leagues",
+          "contractKey": "leagues.links",
+          "url": "https://www.flashscoreusa.com/soccer/albania/",
+          "source": "country-discovery",
+          "status": "pass",
+          "criticalFailure": false,
+          "fallbackUsage": false,
+          "warning": false,
+          "matchedSelector": "#category-left-menu a[href*='/soccer/']",
+          "matchedSelectorIndex": 0,
+          "selectorsTried": [
+            "#category-left-menu a[href*='/soccer/']"
+          ],
+          "errorReason": null,
+          "durationMs": 1757,
+          "diagnostics": {
+            "scope": "leagues",
+            "contractKey": "leagues.links",
+            "selectorsTried": [
+              "#category-left-menu a[href*='/soccer/']"
+            ],
+            "matchedSelector": "#category-left-menu a[href*='/soccer/']",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/albania/",
+            "errorReason": null
+          }
+        }
+      ],
+      "criticalFailures": 0,
+      "warnings": 0,
+      "fallbackUsages": 0,
+      "result": "pass"
+    },
+    {
+      "scope": "seasons",
+      "checks": [
+        {
+          "scope": "seasons",
+          "contractKey": "seasons.links",
+          "url": "https://www.flashscoreusa.com/soccer/usa/mls/archive",
+          "source": "static-fallback",
+          "status": "pass",
+          "criticalFailure": false,
+          "fallbackUsage": false,
+          "warning": false,
+          "matchedSelector": ".archiveLatte__season > a.archiveLatte__text--clickable",
+          "matchedSelectorIndex": 0,
+          "selectorsTried": [
+            ".archiveLatte__season > a.archiveLatte__text--clickable"
+          ],
+          "errorReason": null,
+          "durationMs": 2092,
+          "diagnostics": {
+            "scope": "seasons",
+            "contractKey": "seasons.links",
+            "selectorsTried": [
+              ".archiveLatte__season > a.archiveLatte__text--clickable"
+            ],
+            "matchedSelector": ".archiveLatte__season > a.archiveLatte__text--clickable",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/usa/mls/archive/",
+            "errorReason": null
+          }
+        }
+      ],
+      "criticalFailures": 0,
+      "warnings": 0,
+      "fallbackUsages": 0,
+      "result": "pass"
+    },
+    {
+      "scope": "match-list",
+      "checks": [
+        {
+          "scope": "match-list",
+          "contractKey": "match-list.rows",
+          "url": "https://www.flashscoreusa.com/soccer/usa/mls/results",
+          "source": "static-fallback",
+          "status": "pass",
+          "criticalFailure": false,
+          "fallbackUsage": false,
+          "warning": false,
+          "matchedSelector": ".event__match.event__match--static.event__match--twoLine",
+          "matchedSelectorIndex": 0,
+          "selectorsTried": [
+            ".event__match.event__match--static.event__match--twoLine"
+          ],
+          "errorReason": null,
+          "durationMs": 1161,
+          "diagnostics": {
+            "scope": "match-list",
+            "contractKey": "match-list.rows",
+            "selectorsTried": [
+              ".event__match.event__match--static.event__match--twoLine"
+            ],
+            "matchedSelector": ".event__match.event__match--static.event__match--twoLine",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/usa/mls/results/",
+            "errorReason": null
+          }
+        }
+      ],
+      "criticalFailures": 0,
+      "warnings": 0,
+      "fallbackUsages": 0,
+      "result": "pass"
+    },
+    {
+      "scope": "match-detail",
+      "checks": [
+        {
+          "scope": "match-detail",
+          "contractKey": "match-detail.core",
+          "url": "https://www.flashscoreusa.com/match/demo/",
+          "source": "static-fallback",
+          "status": "fail",
+          "criticalFailure": true,
+          "fallbackUsage": false,
+          "warning": false,
+          "matchedSelector": null,
+          "matchedSelectorIndex": null,
+          "selectorsTried": [
+            ".duelParticipant__startTime",
+            ".fixedHeaderDuel__detailStatus",
+            "div[data-testid='wcl-summaryMatchInformation'] > div"
+          ],
+          "errorReason": "selector_not_found",
+          "durationMs": 7858,
+          "diagnostics": {
+            "scope": "match-detail",
+            "contractKey": "match-detail.core",
+            "selectorsTried": [
+              ".duelParticipant__startTime",
+              ".fixedHeaderDuel__detailStatus",
+              "div[data-testid='wcl-summaryMatchInformation'] > div"
+            ],
+            "matchedSelector": null,
+            "matchedSelectorIndex": null,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/match/demo/",
+            "errorReason": "selector_not_found"
+          }
+        }
+      ],
+      "criticalFailures": 1,
+      "warnings": 0,
+      "fallbackUsages": 0,
+      "result": "fail"
+    }
+  ]
+}

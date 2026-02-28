@@ -1,0 +1,37 @@
+{
+  "YNiVIdYA": {
+    "matchId": "YNiVIdYA",
+    "stage": "ROUND 7",
+    "date": "04:30 PM, February 26, 2026",
+    "status": "FINAL",
+    "home": {
+      "name": "Estudiantes Rio Cuarto",
+      "image": "https://static.flashscore.com/res/image/data/2Ft4YCf5-jesEVRhB.png"
+    },
+    "away": {
+      "name": "Huracan",
+      "image": "https://static.flashscore.com/res/image/data/vBUdlvf5-xxyFAG42.png"
+    },
+    "result": {
+      "home": "2",
+      "away": "0",
+      "regulationTime": null,
+      "penalties": null
+    },
+    "information": [
+      {
+        "category": "Referee",
+        "value": "Macheroni M. (Arg)"
+      },
+      {
+        "category": "Venue",
+        "value": "Estadio Ciudad de Río Cuarto Antonio Candini (Cordoba)"
+      },
+      {
+        "category": "Capacity",
+        "value": "12 000"
+      }
+    ],
+    "statistics": []
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "runId": "smoke-1772256137487",
+  "startedAt": "2026-02-28T05:22:17.487Z",
+  "completedAt": "2026-02-28T05:22:17.487Z",
+  "durationMs": 0,
+  "result": "pass",
+  "mode": "dry-run",
+  "options": {
+    "sample": 1,
+    "maxMatches": 1,
+    "timeoutMs": 90000,
+    "fixtureIds": [],
+    "dryRun": true
+  },
+  "summary": {
+    "totalFixtures": 1,
+    "passedFixtures": 1,
+    "failedFixtures": 0,
+    "durationMs": 0,
+    "result": "pass",
+    "schemaGateStatus": "skipped"
+  },
+  "fixtures": [
+    {
+      "fixtureId": "usa-mls",
+      "fixtureLabel": "USA MLS",
+      "status": "pass",
+      "failedStage": null,
+      "error": null,
+      "durationMs": 0,
+      "counters": {
+        "countriesDiscovered": 0,
+        "leaguesDiscovered": 0,
+        "seasonsDiscovered": 0,
+        "matchesDiscovered": 0,
+        "matchesChecked": 0
+      },
+      "diagnostics": {
+        "dryRun": true
+      },
+      "matchChecks": []
+    }
+  ],
+  "issues": [],
+  "schemaGate": {
+    "status": "skipped",
+    "error": null,
+    "command": null,
+    "inputPath": null,
+    "diagnostics": "dry_run"
+  }
+}

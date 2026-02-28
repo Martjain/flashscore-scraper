@@ -1,0 +1,141 @@
+{
+  "runId": "smoke-1772256991814",
+  "startedAt": "2026-02-28T05:36:31.814Z",
+  "completedAt": "2026-02-28T05:36:47.376Z",
+  "durationMs": 15562,
+  "result": "pass",
+  "mode": "live",
+  "options": {
+    "sample": 1,
+    "maxMatches": 1,
+    "timeoutMs": 90000,
+    "fixtureIds": [],
+    "dryRun": false
+  },
+  "summary": {
+    "totalFixtures": 1,
+    "passedFixtures": 1,
+    "failedFixtures": 0,
+    "durationMs": 15562,
+    "result": "pass",
+    "schemaGateStatus": "pass"
+  },
+  "fixtures": [
+    {
+      "fixtureId": "argentina-liga-profesional",
+      "fixtureLabel": "Argentina Liga Profesional",
+      "status": "pass",
+      "failedStage": null,
+      "error": null,
+      "durationMs": 15561,
+      "counters": {
+        "countriesDiscovered": 22,
+        "leaguesDiscovered": 0,
+        "seasonsDiscovered": 28,
+        "matchesDiscovered": 102,
+        "matchesChecked": 1
+      },
+      "diagnostics": {
+        "countries": [
+          {
+            "scope": "countries",
+            "contractKey": "countries.links",
+            "selectorsTried": [
+              "#category-left-menu a[href*='/soccer/']"
+            ],
+            "matchedSelector": "#category-left-menu a[href*='/soccer/']",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/",
+            "errorReason": null
+          }
+        ],
+        "leagues": [
+          {
+            "scope": "leagues",
+            "contractKey": "leagues.links",
+            "selectorsTried": [
+              "#category-left-menu a[href*='/soccer/']"
+            ],
+            "matchedSelector": "#category-left-menu a[href*='/soccer/']",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/argentina/",
+            "errorReason": null
+          }
+        ],
+        "leaguesFallback": {
+          "used": true,
+          "leagueUrl": "https://www.flashscoreusa.com/soccer/argentina/liga-profesional/",
+          "reason": "empty_discovery_list"
+        },
+        "seasons": [
+          {
+            "scope": "seasons",
+            "contractKey": "seasons.links",
+            "selectorsTried": [
+              ".archiveLatte__season > a.archiveLatte__text--clickable"
+            ],
+            "matchedSelector": ".archiveLatte__season > a.archiveLatte__text--clickable",
+            "matchedSelectorIndex": 0,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": "https://www.flashscoreusa.com/soccer/argentina/liga-profesional/archive/",
+            "errorReason": null
+          }
+        ],
+        "matches": []
+      },
+      "matchChecks": [
+        {
+          "matchId": "YNiVIdYA",
+          "status": "pass",
+          "reason": null,
+          "data": {
+            "matchId": "YNiVIdYA",
+            "stage": "ROUND 7",
+            "date": "04:30 PM, February 26, 2026",
+            "status": "FINAL",
+            "home": {
+              "name": "Estudiantes Rio Cuarto",
+              "image": "https://static.flashscore.com/res/image/data/2Ft4YCf5-jesEVRhB.png"
+            },
+            "away": {
+              "name": "Huracan",
+              "image": "https://static.flashscore.com/res/image/data/vBUdlvf5-xxyFAG42.png"
+            },
+            "result": {
+              "home": "2",
+              "away": "0"
+            },
+            "information": [
+              {
+                "category": "Referee",
+                "value": "Macheroni M. (Arg)"
+              },
+              {
+                "category": "Venue",
+                "value": "Estadio Ciudad de Río Cuarto Antonio Candini (Cordoba)"
+              },
+              {
+                "category": "Capacity",
+                "value": "12 000"
+              }
+            ],
+            "statistics": []
+          }
+        }
+      ]
+    }
+  ],
+  "issues": [],
+  "schemaGate": {
+    "status": "pass",
+    "error": null,
+    "command": "npm run validate:schema --",
+    "inputPath": "/home/martinesfer/Downloads/Workspace/FlashscoreScraping/.planning/artifacts/smoke/schema-input-latest.json",
+    "diagnostics": "> flashscore-scraping@1.4.0 validate:schema\n> node scripts/validate-flashscore-schema.mjs /home/martinesfer/Downloads/Workspace/FlashscoreScraping/.planning/artifacts/smoke/schema-input-latest.json\n\nSchema validation passed: 1/1 object-map entries checked from /home/martinesfer/Downloads/Workspace/FlashscoreScraping/.planning/artifacts/smoke/schema-input-latest.json"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "runId": "selector-health-1772253905858",
+  "startedAt": "2026-02-28T04:44:31.916Z",
+  "completedAt": "2026-02-28T04:45:05.858Z",
+  "durationMs": 33942,
+  "mode": "strict",
+  "strict": true,
+  "failFast": false,
+  "dryRun": false,
+  "sample": 1,
+  "scopes": [
+    "match-list"
+  ],
+  "checks": 1,
+  "criticalFailures": 1,
+  "warnings": 0,
+  "fallbackUsages": 0,
+  "result": "fail",
+  "scopeResults": [
+    {
+      "scope": "match-list",
+      "checks": [
+        {
+          "scope": "match-list",
+          "contractKey": "match-list.rows",
+          "url": null,
+          "source": "discovery",
+          "status": "fail",
+          "criticalFailure": true,
+          "fallbackUsage": false,
+          "warning": false,
+          "matchedSelector": null,
+          "matchedSelectorIndex": null,
+          "selectorsTried": [
+            ".event__match.event__match--static.event__match--twoLine",
+            ".event__match[id^='g_']",
+            "[data-testid='wcl-event']"
+          ],
+          "errorReason": "no_probe_targets",
+          "durationMs": 0,
+          "diagnostics": {
+            "scope": "match-list",
+            "contractKey": "match-list.rows",
+            "selectorsTried": [
+              ".event__match.event__match--static.event__match--twoLine",
+              ".event__match[id^='g_']",
+              "[data-testid='wcl-event']"
+            ],
+            "matchedSelector": null,
+            "matchedSelectorIndex": null,
+            "fallbackUsed": false,
+            "fallbackCount": 0,
+            "url": null,
+            "errorReason": "no_probe_targets"
+          }
+        }
+      ],
+      "criticalFailures": 1,
+      "warnings": 0,
+      "fallbackUsages": 0,
+      "result": "fail"
+    }
+  ]
+}
