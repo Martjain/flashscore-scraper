@@ -130,3 +130,11 @@ dist
 .pnp.*
 
 data
+
+# Project runtime outputs
+src/data/
+
+# GSD runtime artifacts (generated on command runs)
+.planning/artifacts/
+.planning/agent-history.json
+.planning/current-agent-id.txt
