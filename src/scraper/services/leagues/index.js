@@ -5,14 +5,14 @@ export const getListOfLeagues = async (context, countryId) => {
   const countrySlug = normalizeCountrySlug(countryId);
   const page = await openPageAndNavigate(
     context,
-    `${BASE_URL}/football/${countrySlug}/`
+    `${BASE_URL}/soccer/${countrySlug}/`
   );
 
   const selectors = [
-    `#category-left-menu a[href*='/football/${countrySlug}/']`,
-    `[class*='lmenu'] a[href*='/football/${countrySlug}/']`,
-    `[data-testid*='left'] a[href*='/football/${countrySlug}/']`,
-    `a[href*='/football/${countrySlug}/']`,
+    `#category-left-menu a[href*='/soccer/${countrySlug}/']`,
+    `[class*='lmenu'] a[href*='/soccer/${countrySlug}/']`,
+    `[data-testid*='left'] a[href*='/soccer/${countrySlug}/']`,
+    `a[href*='/soccer/${countrySlug}/']`,
   ];
   await waitForSelectorSafe(page, selectors, TIMEOUT);
 
@@ -34,14 +34,14 @@ export const getListOfLeagues = async (context, countryId) => {
 
     candidates.forEach((element) => {
       const segments = toSegments(element.href);
-      if (segments[0] !== "football" || segments[1] !== countrySlug) return;
+      if (segments[0] !== "soccer" || segments[1] !== countrySlug) return;
       if (segments.length < 3) return;
 
       const leagueSlug = segments[2];
       const name = element.textContent?.trim().replace(/\s+/g, " ");
       if (!leagueSlug || !name) return;
 
-      const url = `${window.location.origin}/football/${countrySlug}/${leagueSlug}/`;
+      const url = `${window.location.origin}/soccer/${countrySlug}/${leagueSlug}/`;
       uniqueLeagues.set(url, { name, url });
     });
 

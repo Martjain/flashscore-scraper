@@ -2,14 +2,14 @@ import { BASE_URL, TIMEOUT } from "../../../constants/index.js";
 import { openPageAndNavigate, waitForSelectorSafe } from "../../index.js";
 
 const COUNTRY_SELECTORS = [
-  "#category-left-menu a[href*='/football/']",
-  "[class*='lmenu'] a[href*='/football/']",
-  "[data-testid*='left'] a[href*='/football/']",
-  "a[href*='/football/']",
+  "#category-left-menu a[href*='/soccer/']",
+  "[class*='lmenu'] a[href*='/soccer/']",
+  "[data-testid*='left'] a[href*='/soccer/']",
+  "a[href*='/soccer/']",
 ];
 
 export const getListOfCountries = async (context) => {
-  const page = await openPageAndNavigate(context, `${BASE_URL}/football/`);
+  const page = await openPageAndNavigate(context, `${BASE_URL}/soccer/`);
   await waitForSelectorSafe(page, COUNTRY_SELECTORS, TIMEOUT);
 
   const listOfCountries = await page.evaluate((selectors) => {
@@ -30,7 +30,7 @@ export const getListOfCountries = async (context) => {
 
     candidates.forEach((element) => {
       const segments = toSegments(element.href);
-      if (segments[0] !== "football" || segments.length !== 2) return;
+      if (segments[0] !== "soccer" || segments.length !== 2) return;
 
       const name = element.textContent?.trim().replace(/\s+/g, " ");
       const countrySlug = segments[1];
@@ -39,7 +39,7 @@ export const getListOfCountries = async (context) => {
       uniqueCountries.set(countrySlug, {
         name,
         id: countrySlug,
-        url: `${window.location.origin}/football/${countrySlug}/`,
+        url: `${window.location.origin}/soccer/${countrySlug}/`,
       });
     });
 

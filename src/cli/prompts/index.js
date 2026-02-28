@@ -44,7 +44,7 @@ const buildLeagueSeasonUrl = (countryName = "", league = "") => {
   const leagueSegment = normalizePathSegment(league);
   const origin = BASE_URL.replace(/\/+$/, "");
 
-  return `${origin}/football/${countrySegment}/${leagueSegment}`;
+  return `${origin}/soccer/${countrySegment}/${leagueSegment}`;
 };
 
 const normalizePathSegment = (value = "") =>
