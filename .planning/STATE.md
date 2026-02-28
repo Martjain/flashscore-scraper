@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Reliability Operations
-status: phase_execution_in_progress
-last_updated: "2026-02-28T19:52:00Z"
+status: phase_verification_pending
+last_updated: "2026-02-28T19:57:00Z"
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 12
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -23,17 +23,17 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 4 of 6 (Failed Fixture Reruns)
-Plan: 04-01 complete, 04-02 pending
-Status: Phase 4 execution in progress
-Last activity: 2026-02-28 — Completed plan 04-01 rerun fixture selection foundation
+Plan: 04-01 and 04-02 complete
+Status: Phase 4 plans complete, verification pending
+Last activity: 2026-02-28 — Completed plan 04-02 rerun orchestration and ops surface
 
-Progress: [██████░░░░] 58%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 8.5 min
+- Total plans completed: 8
+- Average duration: 7.5 min
 - Total execution time: 1.0 hours
 
 **By Phase:**
@@ -43,7 +43,7 @@ Progress: [██████░░░░] 58%
 | 1 | 2 | 12 min | 6 min |
 | 2 | 2 | 29 min | 14.5 min |
 | 3 | 2 | 17 min | 8.5 min |
-| 4 | 1 | 1 min | 1 min |
+| 4 | 2 | 2 min | 1 min |
 
 **Recent Trend:**
 - Last 5 plans: 5 complete (all successful)
@@ -69,6 +69,8 @@ Recent decisions affecting current work:
 - [Milestone v1.2 init]: Focus scope on rerun, alerting, and rotating matrix capabilities
 - [Phase 04]: Rerun preflight must derive candidates from artifact `fixtures[]` fail entries only
 - [Phase 04]: Rerun CLI rejects ambiguous `--rerun-failed` + `--fixture` combinations
+- [Phase 04]: Rerun mode must execute the full failed fixture set without sample-based truncation
+- [Phase 04]: Workflow dispatch exposes `rerun_failed` and optional `artifact` override for operators
 
 ### Pending Todos
 
@@ -81,5 +83,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Phase 4 execution after plan 04-01
-Resume file: .planning/phases/04-failed-fixture-reruns/04-02-PLAN.md
+Stopped at: Phase 4 execution complete, ready for verification
+Resume file: .planning/phases/04-failed-fixture-reruns/04-VERIFICATION.md
