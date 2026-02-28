@@ -1,178 +1,84 @@
 # Pitfalls Research
 
-**Domain:** Reliability hardening for Playwright-based scraper pipelines
+**Domain:** Reliability operations for scheduled scraper smoke checks
 **Researched:** 2026-02-28
-**Confidence:** HIGH
+**Confidence:** MEDIUM
 
 ## Critical Pitfalls
 
-### Pitfall 1: Silent selector drift masked by partial extraction
+### Pitfall 1: Rerun mode targets wrong fixtures
 
-**What goes wrong:**
-Scrape command still runs, but key sections (league links, season links, statistics blocks) return empty or degraded data.
+**What goes wrong:** Failed-only reruns execute incorrect IDs or empty sets due to artifact parsing drift.
 
-**Why it happens:**
-Selectors are treated as implementation detail instead of explicit contract; drift is detected only after user-facing breakage.
+**Why it happens:** Rerun logic assumes artifact structure without validation.
 
-**How to avoid:**
-Define selector contracts with health probes and fail early when critical selectors break.
+**How to avoid:** Validate `latest.json` shape and fallback to explicit `--fixture` override on invalid artifacts.
 
-**Warning signs:**
-Unexpected empty arrays, frequent fallback usage spikes, or sudden drop in fields populated per match.
+**Warning signs:** Rerun reports "no_matching_fixtures" after known failures.
 
-**Phase to address:**
-Phase 2 (selector health checks and fallback monitoring)
+**Phase to address:** Phase 4
 
 ---
 
-### Pitfall 2: Flaky smoke tests caused by fixed sleeps and unstable targets
+### Pitfall 2: Alert noise overwhelms response channels
 
-**What goes wrong:**
-Smoke suite alternates pass/fail without code changes, reducing trust in CI.
+**What goes wrong:** Teams ignore notifications due to frequent low-value messages.
 
-**Why it happens:**
-Tests rely on timing guesses (`waitForTimeout`) and volatile fixtures instead of deterministic targets plus web-first assertions.
+**Why it happens:** Alerts emit for successes, retries, and transient non-actionable events.
 
-**How to avoid:**
-Use deterministic fixture matrix, explicit assertions, bounded retries, and trace capture on retry.
+**How to avoid:** Notify failures only with concise actionable payload and optional cooldown.
 
-**Warning signs:**
-Same test failing in different steps, high rerun pass rate, or failures concentrated around navigation timing.
+**Warning signs:** Multiple identical alerts per run or repeated non-actionable pings.
 
-**Phase to address:**
-Phase 3 (automated end-to-end smoke coverage)
+**Phase to address:** Phase 5
 
 ---
 
-### Pitfall 3: Over-broad smoke matrix that blocks delivery velocity
+### Pitfall 3: Extended matrix destabilizes default CI runtime
 
-**What goes wrong:**
-CI becomes too slow/noisy, and reliability checks are bypassed by contributors.
+**What goes wrong:** Regular CI checks become slow/flaky after adding more regions.
 
-**Why it happens:**
-Attempting exhaustive league/country coverage on every PR instead of right-sized representative checks.
+**Why it happens:** Extended coverage runs on every trigger instead of bounded schedule.
 
-**How to avoid:**
-Split fast representative smoke from extended scheduled runs and enforce strict runtime budget.
+**How to avoid:** Separate default representative matrix from rotating extended mode.
 
-**Warning signs:**
-Pipeline duration keeps growing, frequent CI queue congestion, and contributors skipping local validation.
+**Warning signs:** Median smoke runtime increases sharply for routine runs.
 
-**Phase to address:**
-Phase 3 (smoke suite design and CI rollout)
+**Phase to address:** Phase 6
 
 ---
 
-### Pitfall 4: Schema compatibility verified outside smoke path
+### Pitfall 4: Missing failure context in alert payload
 
-**What goes wrong:**
-Navigation/extraction smoke passes while downstream consumers still break due to shape drift.
+**What goes wrong:** Alerts announce failure without enough data to triage quickly.
 
-**Why it happens:**
-Schema checks are run manually or separately, not as a required gate in reliability workflow.
+**Why it happens:** Payload excludes run ID, failed stage, or fixture IDs.
 
-**How to avoid:**
-Integrate `validate:schema` into smoke command and CI workflow as a required pass condition.
+**How to avoid:** Enforce payload contract including run metadata and top failing fixtures.
 
-**Warning signs:**
-Smoke green but consumer parser errors, or schema command infrequently run in practice.
+**Warning signs:** Engineers open raw logs to discover basic failure details.
 
-**Phase to address:**
-Phase 3 (smoke + schema integration)
-
----
-
-### Pitfall 5: Weak diagnostics on failure
-
-**What goes wrong:**
-Breakages are reported as generic "scrape failed" errors with no selector/page context.
-
-**Why it happens:**
-No structured output artifact, traces, or failure metadata capture in scripts.
-
-**How to avoid:**
-Emit machine-readable drift/smoke reports and store Playwright traces for retries/failures.
-
-**Warning signs:**
-Long triage sessions, repeated manual reproduction, and inconsistent fix quality.
-
-**Phase to address:**
-Phase 2 and Phase 3
+**Phase to address:** Phase 5
 
 ## Technical Debt Patterns
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Inline selector fixes in service files only | Quick hotfix | Selector governance decays; repeated drift bugs | Emergency patch only, followed by contract update |
-| One giant smoke script | Faster initial implementation | Hard debugging and poor extensibility | Never for milestone reliability foundation |
-| Global retry count without per-step policy | Fewer immediate reds | Masks real defects and inflates runtime | Temporary during flaky-environment incident |
-
-## Integration Gotchas
-
-| Integration | Common Mistake | Correct Approach |
-|-------------|----------------|------------------|
-| Playwright + CI | Running headed mode by default in CI | Use headless defaults, collect traces/videos only on failure/retry |
-| Smoke + schema validator | Treating schema as optional post-check | Chain schema validation as required smoke step |
-| Reliability reports + CI artifacts | Printing only console logs | Write JSON artifacts and upload from workflow |
-
-## Performance Traps
-
-| Trap | Symptoms | Prevention | When It Breaks |
-|------|----------|------------|----------------|
-| Unbounded concurrency for fixture matrix | Browser crashes, timeout spikes, unstable CI | Limit parallelism with `p-limit` and fixture queueing | Usually at 5+ concurrent browser contexts |
-| Always-on deep tracing/screenshots | Large artifact storage and slow runs | Use `trace: on-first-retry` and capture media selectively | Any daily scheduled smoke with multiple fixtures |
-| Re-running full suite for single fixture failure | Long feedback loops | Add targeted rerun mode and fail-fast per fixture group | Noticeable once suite exceeds ~10 minutes |
-
-## Security Mistakes
-
-| Mistake | Risk | Prevention |
-|---------|------|------------|
-| Committing session/cookie artifacts from debug runs | Credential leakage or unauthorized reuse | Store debug artifacts in ignored temp paths and sanitize uploads |
-| Logging full page HTML with dynamic IDs/tokens | Sensitive data exposure in CI logs | Redact logs and capture focused selector diagnostics |
-| Aggressive request rates during probes | IP throttling/temporary blocks | Enforce polite rate limits and bounded retries |
-
-## UX Pitfalls
-
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| Health check output is too technical | Users cannot act on failures | Include plain-language failure reason + suggested next step |
-| Smoke command hides fixture progress | Users think process is hung | Show progress per fixture with elapsed time |
-| Failure result not tied to requirement contract | Hard to assess release readiness | Map failures to REQ IDs in reports/summary |
+| Parsing artifacts inline inside scripts | Fast implementation | Duplicate parsing and drift bugs | Never for shared reliability workflows |
+| Hardcoding rotation calendar in CI YAML | Easy rollout | Hard to test and evolve region logic | Short-term only, replace with code-based selector |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Selector health checks:** Often missing fallback coverage - verify each critical selector has ordered fallback candidates.
-- [ ] **Smoke matrix:** Often missing schema validation - verify `validate:schema` executes in same workflow.
-- [ ] **CI integration:** Often missing scheduled trigger - verify daily cron and manual dispatch both exist.
-- [ ] **Diagnostics:** Often missing machine-readable artifact - verify JSON report is created and uploaded.
-
-## Recovery Strategies
-
-| Pitfall | Recovery Cost | Recovery Steps |
-|---------|---------------|----------------|
-| Silent selector drift | MEDIUM | Run health checks, identify failing contract entries, patch selector map, rerun targeted smoke |
-| Flaky smoke instability | MEDIUM | Analyze trace, replace sleeps with assertions, tighten fixture determinism, tune retry policy |
-| Oversized smoke suite | LOW | Split into fast representative and extended scheduled suites; enforce runtime budget |
-| Missing diagnostics | LOW | Add structured report writer + CI artifact upload and rerun failing fixture |
-
-## Pitfall-to-Phase Mapping
-
-| Pitfall | Prevention Phase | Verification |
-|---------|------------------|--------------|
-| Silent selector drift | Phase 2 | Health command fails when any critical selector contract breaks |
-| Flaky smoke behavior | Phase 3 | Repeated runs are stable under same fixtures with low rerun variance |
-| Oversized smoke suite | Phase 3 | Default CI runtime remains within agreed budget |
-| Schema check disconnected | Phase 3 | Smoke fails whenever schema validator fails |
-| Weak diagnostics | Phase 2/3 | Failure artifacts contain selector/fixture-level detail |
+- [ ] **Rerun mode:** verifies artifact schema before selecting failed fixtures.
+- [ ] **Alerting:** includes run ID, result, failure stage, and failing fixture IDs.
+- [ ] **Rotation:** keeps default smoke runtime budget unchanged.
+- [ ] **CI:** documents trigger intent for default vs extended runs.
 
 ## Sources
 
-- https://playwright.dev/docs/best-practices
-- https://playwright.dev/docs/auto-waiting
-- https://playwright.dev/docs/test-retries
-- https://playwright.dev/docs/test-timeouts
-- https://playwright.dev/docs/test-reporters
+- Existing smoke/selector artifacts and runner code
+- Existing reliability workflow design and retention behavior
 
 ---
-*Pitfalls research for: scraper reliability hardening*
+*Pitfalls research for: FlashscoreScraping v1.2 reliability operations*
 *Researched: 2026-02-28*
