@@ -58,7 +58,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 ### 📋 v1.1 Reliability Hardening (Planned)
 
-- [ ] Phase 2: Selector Health Contracts
+- [x] Phase 2: Selector Health Contracts (2/2 plans) - completed 2026-02-28
   - [x] 02-01: Implement selector contract registry and fallback map
   - [x] 02-02: Implement health-check command with drift diagnostics artifact
 
@@ -71,4 +71,4 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 | Milestone | Status | Phases Complete | Shipped |
 |-----------|--------|-----------------|---------|
 | v1.0 Flashscore USA Migration | Complete | 1/1 | 2026-02-28 |
-| v1.1 Reliability Hardening | In Progress | 0/2 | - |
+| v1.1 Reliability Hardening | In Progress | 1/2 | - |

@@ -9,8 +9,8 @@ Requirements for milestone v1.1 Reliability Hardening. Each maps to exactly one 
 
 ### Selector Reliability
 
-- [ ] **RELY-01**: User can run a selector health-check command that validates critical country, league, season, and match selectors before full scraping.
-- [ ] **RELY-02**: User receives selector drift diagnostics that identify which selector contract failed and whether fallback selectors were used.
+- [x] **RELY-01**: User can run a selector health-check command that validates critical country, league, season, and match selectors before full scraping.
+- [x] **RELY-02**: User receives selector drift diagnostics that identify which selector contract failed and whether fallback selectors were used.
 
 ### Smoke Verification
 
@@ -46,8 +46,8 @@ Explicitly excluded from v1.1 scope.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RELY-01 | Phase 2 | Pending |
-| RELY-02 | Phase 2 | Pending |
+| RELY-01 | Phase 2 | Complete |
+| RELY-02 | Phase 2 | Complete |
 | RELY-03 | Phase 3 | Pending |
 | RELY-04 | Phase 3 | Pending |
 | RELY-05 | Phase 3 | Pending |
@@ -60,4 +60,4 @@ Explicitly excluded from v1.1 scope.
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after v1.1 milestone requirements definition*
+*Last updated: 2026-02-28 after Phase 2 completion verification*

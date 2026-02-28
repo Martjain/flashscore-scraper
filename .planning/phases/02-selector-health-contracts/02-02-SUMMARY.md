@@ -60,6 +60,7 @@ completed: 2026-02-28
 1. **Task 1: Build selector health-check runner with critical scope probing** - `5749d9b` (feat)
 2. **Task 2: Implement diagnostics reporting, retention, and RESULT summary output** - `7ad3313` (feat)
 3. **Task 3: Wire CLI command surface and documentation for local and CI usage** - `4823974` (feat)
+4. **Deviation fix: Seeded match-detail probe fallback discovery** - `dabf7fe` (fix)
 
 ## Files Created/Modified
 - `src/selector-health/health-check/runSelectorHealthCheck.js` - Core runner that probes contracts per scope and computes pass/fail semantics.
@@ -89,11 +90,22 @@ completed: 2026-02-28
 
 ---
 
-**Total deviations:** 1 auto-fixed (1 Rule 3 blocking)
+**2. [Rule 1 - Bug] Match-detail full-scope probe used demo fallback URL**
+- **Found during:** Phase-level verification run
+- **Issue:** Full multi-scope run could fail on `match-detail` when discovery had no targets and demo URL selector probe returned false negative.
+- **Fix:** Added seeded fallback discovery using MLS results match links before falling back to demo URL.
+- **Files modified:** `src/selector-health/health-check/runSelectorHealthCheck.js`
+- **Verification:** `npm run health:selectors -- --scope countries --scope leagues --scope seasons --scope match-list --scope match-detail --sample 1 --fail-fast` passed.
+- **Committed in:** `dabf7fe`
+
+---
+
+**Total deviations:** 2 auto-fixed (1 Rule 1 bug, 1 Rule 3 blocking)
 **Impact on plan:** No scope creep; verification completed with required runtime permissions.
 
 ## Issues Encountered
 - Initial strict-mode run returned `no_probe_targets` due empty dynamic discovery for `match-list`; runner was updated with static URL fallback targets to keep checks actionable.
+- Full-scope run initially failed on match-detail demo fallback and was corrected with seeded match discovery from MLS results.
 
 ## User Setup Required
 None - no external service configuration required.
@@ -104,6 +116,7 @@ None - no external service configuration required.
 
 ## Self-Check
 - ✅ `node --check src/selector-health/health-check/runSelectorHealthCheck.js src/selector-health/health-check/reporting.js src/selector-health/health-check/retention.js scripts/health-selectors.mjs` passed.
+- ✅ `npm run health:selectors -- --scope countries --scope leagues --scope seasons --scope match-list --scope match-detail --sample 1 --fail-fast` passed.
 - ✅ `npm run health:selectors -- --dry-run --scope countries --sample 1` passed.
 - ✅ `npm run health:selectors -- --strict --scope match-list --sample 1` passed.
 - ✅ `.planning/artifacts/selector-health/latest.json` generated.
