@@ -17,7 +17,7 @@ Requirements for milestone v1.2 Reliability Operations. Each maps to exactly one
 
 ### Coverage Expansion
 
-- [ ] **RELY-09**: User can execute a rotating extended smoke matrix grouped by region on scheduled runs while keeping default smoke runtime bounded for routine CI.
+- [x] **RELY-09**: User can execute a rotating extended smoke matrix grouped by region on scheduled runs while keeping default smoke runtime bounded for routine CI.
 
 ## v2 Requirements
 
@@ -44,7 +44,7 @@ Explicitly excluded from v1.2 scope.
 |-------------|-------|--------|
 | RELY-07 | Phase 4 | Complete |
 | RELY-08 | Phase 5 | Complete |
-| RELY-09 | Phase 6 | Pending |
+| RELY-09 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 3 total
@@ -53,4 +53,4 @@ Explicitly excluded from v1.2 scope.
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after phase 5 completion*
+*Last updated: 2026-02-28 after phase 6 completion*

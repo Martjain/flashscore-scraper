@@ -8,7 +8,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 - ✅ **v1.0 Flashscore USA Migration** - shipped 2026-02-28 ([archive](.planning/milestones/v1.0-ROADMAP.md))
 - ✅ **v1.1 Reliability Hardening** - shipped 2026-02-28 ([archive](.planning/milestones/v1.1-ROADMAP.md))
-- 📋 **v1.2 Reliability Operations** - requirements and roadmap defined
+- ✅ **v1.2 Reliability Operations** - execution complete 2026-02-28 (pending milestone archive)
 
 ## Proposed Roadmap
 
@@ -16,7 +16,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
-| 4 | Failed Fixture Reruns | Complete    | 2026-02-28 | 4 |
+| 4 | Failed Fixture Reruns | Add artifact-driven failed-only rerun support so operators can recover quickly after partial smoke failures | RELY-07 | 4 |
 | 5 | Reliability Failure Alerts | Send actionable chat/webhook alerts for smoke and selector-health failures | RELY-08 | 4 |
 | 6 | Rotating Regional Matrix | Expand smoke coverage by region on schedule while preserving fast default CI smoke | RELY-09 | 4 |
 
@@ -82,7 +82,7 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 
 </details>
 
-### 📋 v1.2 Reliability Operations (Planned)
+### ✅ v1.2 Reliability Operations (Execution complete 2026-02-28)
 
 - [x] Phase 4: Failed Fixture Reruns (2/2 plans) (completed 2026-02-28)
   - [x] 04-01: Implement failed-fixture artifact parsing and rerun selection mode
@@ -92,9 +92,9 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
   - [x] 05-01: Implement webhook alert publisher and normalized failure payload builder
   - [x] 05-02: Integrate alert triggers into smoke + selector-health workflows
 
-- [ ] Phase 6: Rotating Regional Matrix (0/2 plans)
-  - [ ] 06-01: Extend fixture matrix with region metadata and deterministic rotation selector
-  - [ ] 06-02: Add scheduled extended-matrix workflow mode with bounded default runtime
+- [x] Phase 6: Rotating Regional Matrix (2/2 plans) (completed 2026-02-28)
+  - [x] 06-01: Extend fixture matrix with region metadata and deterministic rotation selector
+  - [x] 06-02: Add scheduled extended-matrix workflow mode with bounded default runtime
 
 ## Progress
 
@@ -102,4 +102,4 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
 |-----------|--------|-----------------|---------|
 | v1.0 Flashscore USA Migration | Complete | 1/1 | 2026-02-28 |
 | v1.1 Reliability Hardening | Complete | 2/2 | 2026-02-28 |
-| v1.2 Reliability Operations | In Progress | 2/3 | - |
+| v1.2 Reliability Operations | Complete | 3/3 | 2026-02-28 |

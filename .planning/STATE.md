@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Reliability Operations
 status: phase_completed
-last_updated: "2026-02-28T20:44:00Z"
+last_updated: "2026-02-28T21:16:30Z"
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 12
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Users can reliably extract structured league match results and statistics from Flashscore pages into reusable local data files.
-**Current focus:** Phase 6 planning and execution (Rotating Regional Matrix)
+**Current focus:** Milestone closeout after Phase 6 completion
 
 ## Current Position
 
 Phase: 6 of 6 (Rotating Regional Matrix)
 Plan: none active
-Status: Phase 5 complete, ready for phase 6 planning
-Last activity: 2026-02-28 — Verified and closed phase 5 reliability failure alerts
+Status: Phase 6 verified and complete, ready for milestone completion workflow
+Last activity: 2026-02-28 — Completed and verified deterministic rotating regional smoke matrix rollout
 
-Progress: [████████░░] 83%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 6.4 min
-- Total execution time: 1.1 hours
+- Total plans completed: 12
+- Average duration: 6.0 min
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
@@ -45,6 +45,7 @@ Progress: [████████░░] 83%
 | 3 | 2 | 17 min | 8.5 min |
 | 4 | 2 | 2 min | 1 min |
 | 5 | 2 | 3 min | 1.5 min |
+| 6 | 2 | 5 min | 2.5 min |
 
 **Recent Trend:**
 - Last 5 plans: 5 complete (all successful)
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [Phase 05]: Alert payload contract is source-normalized and versioned with deterministic sorted affected identifiers
 - [Phase 05]: Smoke and selector-health alerts are emitted once per failing run after final report persistence
 - [Phase 05]: Alert-send failures are warning-only and do not override reliability command exit semantics
+- [Phase 06]: Extended matrix selection uses stable rotation-key hashing to choose deterministic region slots
+- [Phase 06]: Explicit fixture filters override matrix mode to preserve operator-targeted run precedence
+- [Phase 06]: Scheduled CI smoke runs set extended mode with ISO-week rotation keys while manual defaults remain bounded
 
 ### Pending Todos
 
@@ -88,5 +92,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Phase 5 complete, next phase planning
+Stopped at: Phase 6 complete and verified; milestone closeout pending
 Resume file: .planning/ROADMAP.md
