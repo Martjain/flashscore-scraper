@@ -8,29 +8,26 @@ FlashscoreScraping is a Node.js + Playwright CLI for extracting soccer match dat
 
 Users can reliably extract structured league match results and statistics into reusable local data files with stable schema contracts.
 
+## Current Milestone: v1.3 Reliability Signal Quality
+
+**Goal:** Improve reliability signal quality so operators receive fewer duplicate alerts and can quickly spot degradation trends.
+
+**Target features:**
+- Alert deduplication/cooldown policies for repeated failures (`RELY-10`)
+- Failure trend summaries by fixture and region over time (`RELY-11`)
+- Milestone-scoped roadmap that keeps current CLI/runtime contracts stable
+
 ## Current State
 
 - **Shipped milestones:**
   - v1.0 Flashscore USA Migration (2026-02-28)
   - v1.1 Reliability Hardening (2026-02-28)
   - v1.2 Reliability Operations (2026-02-28)
-- **Reliability operations now include:**
-  - Failed-fixture rerun mode backed by smoke artifacts
-  - Webhook-based failure alerts for smoke and selector-health failures
-  - Deterministic rotating regional smoke matrix for scheduled extended coverage
 - **Key commands and workflows:**
   - `npm run validate:schema`
   - `npm run health:selectors`
   - `npm run smoke:reliability`
   - CI workflow: `.github/workflows/reliability-smoke.yml`
-
-## Next Milestone Goals
-
-- Define and prioritize post-v1.2 reliability enhancements.
-- Candidate requirements to evaluate:
-  - RELY-10: Alert deduplication/cooldown policies.
-  - RELY-11: Failure trend summaries by fixture/region.
-- Re-run milestone audit discipline before closeout (`$gsd-audit-milestone` prior to next `$gsd-complete-milestone`).
 
 ## Requirements
 
@@ -52,21 +49,21 @@ Users can reliably extract structured league match results and statistics into r
 
 ### Active
 
-- [ ] **RELY-10**: Alert deduplication/cooldown policies.
-- [ ] **RELY-11**: Failure trend summaries by fixture/region over time.
+- [ ] **RELY-10**: Operator can configure alert deduplication/cooldown policies to suppress repeated notifications for the same failure signature.
+- [ ] **RELY-11**: Operator can generate failure trend summaries by fixture and region across a selectable lookback window.
 
 ### Out of Scope
 
 - Multi-sport expansion beyond current soccer scope
 - Framework rewrite away from Node.js + Playwright
-- UI/dashboard productization in the short term
+- Full web dashboard productization in this milestone
 - Autonomous selector self-healing without explicit review
 
 ## Context
 
 - Architecture: CLI orchestration + service modules (`countries`, `leagues`, `seasons`, `matches`) + reliability modules
 - Reliability artifacts: `.planning/artifacts/selector-health/`, `.planning/artifacts/smoke/`
-- Operational emphasis: schema compatibility, selector drift detection, failure recovery, proactive alerts, and deterministic coverage rotation
+- Operational emphasis: schema compatibility, selector drift detection, failure recovery, proactive alerts, deterministic coverage rotation, and signal quality controls
 
 ## Constraints
 
@@ -86,14 +83,7 @@ Users can reliably extract structured league match results and statistics into r
 | Enforce schema validation as required live-smoke gate | Prevent false-positive smoke passes on contract drift | ✓ Adopted in v1.1 |
 | Use one smoke command for local and CI | Avoid behavior drift across environments | ✓ Adopted in v1.1 |
 | Keep v1.2 focused on operational reliability (rerun/alerting/matrix) | Increase signal and recovery speed without architecture churn | ✓ Adopted in v1.2 |
-
-<details>
-<summary>Archived milestone framing (v1.2 initialization snapshot)</summary>
-
-- v1.2 scope was initialized around three reliability operations goals: failed-fixture reruns, failure alerts, and rotating regional matrix coverage.
-- These targets are now shipped and tracked in milestone archives and validated requirements.
-
-</details>
+| Keep v1.3 focused on signal quality (dedupe + trend visibility) | Reduce alert fatigue and expose failure patterns before adding new reliability surfaces | — Pending |
 
 ---
-*Last updated: 2026-02-28 after v1.2 milestone completion*
+*Last updated: 2026-02-28 after v1.3 milestone kickoff*
