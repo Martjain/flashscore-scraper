@@ -29,6 +29,8 @@ Options:
   --fixture <id>      Restrict to fixture id(s), repeatable or comma-separated
   --rerun-failed      Rerun only failed fixtures from smoke artifact
   --artifact <path>   Smoke artifact path for rerun mode (default: .planning/artifacts/smoke/latest.json)
+  --matrix-mode <m>   Fixture matrix mode: default | extended (env: RELIABILITY_SMOKE_MATRIX_MODE)
+  --rotation-key <k>  Deterministic key for extended region rotation (env: RELIABILITY_SMOKE_ROTATION_KEY)
   --timeout-ms <n>    Per-fixture timeout in milliseconds (default: 90000)
   --dry-run           Skip browser work and validate selection + artifact flow
   --report <path>     Override JSON report path (default: .planning/artifacts/smoke/latest.json)
@@ -111,6 +113,8 @@ const applyExecutionContext = (result, options = {}, executionContext = {}) => (
   mode: executionContext.mode || result.mode,
   options: {
     ...result.options,
+    matrixMode: options.matrixMode,
+    rotationKey: options.rotationKey,
     rerunFailed: Boolean(options.rerunFailed),
     artifact: executionContext.artifactPath || options.artifact || null,
   },
@@ -131,6 +135,14 @@ const printRunSummary = (result, options = {}) => {
     console.info(
       `Schema gate: ${result.schemaGate?.status ?? "not-run"}`
     );
+    if (result.selection) {
+      const selectionFixtures = Array.isArray(result.selection.fixtureIds)
+        ? result.selection.fixtureIds.join(",")
+        : "";
+      console.info(
+        `Selection: mode=${result.selection.mode || "default"} requested=${result.selection.requestedMode || "default"} rotationKey=${result.selection.rotationKey || "none"} region=${result.selection.selectedRegion || "none"} token=${result.selection.regionToken || "none"} reason=${result.selection.reason || "none"} fixtures=${selectionFixtures || "none"}`
+      );
+    }
 
     result.fixtures.forEach((fixture) => {
       const statusLabel = fixture.status === "pass" ? "PASS" : "FAIL";
@@ -189,6 +201,8 @@ const buildRunnerFailure = (error, options = {}) => {
       maxMatches: options.maxMatches,
       timeoutMs: options.timeoutMs,
       fixtureIds: options.fixtureIds,
+      matrixMode: options.matrixMode,
+      rotationKey: options.rotationKey,
       dryRun: options.dryRun,
       rerunFailed: Boolean(options.rerunFailed),
       artifact: options.artifact || null,
@@ -374,6 +388,8 @@ const run = async () => {
       maxMatches: options.maxMatches,
       timeoutMs: options.timeoutMs,
       fixtureIds: executionContext.fixtureIds,
+      matrixMode: options.matrixMode,
+      rotationKey: options.rotationKey,
       dryRun: options.dryRun,
     });
     const contextualResult = applyExecutionContext(
