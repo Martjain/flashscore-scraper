@@ -43,14 +43,17 @@ const normalizePositiveInteger = (value, fallback) =>
 
 const normalizeFixtureId = (value = "") => value.toString().trim().toLowerCase();
 const normalizeMatrixMode = (value = DEFAULT_SMOKE_MATRIX_MODE) => {
-  const normalized = value.toString().trim().toLowerCase();
+  const normalized = (value ?? DEFAULT_SMOKE_MATRIX_MODE)
+    .toString()
+    .trim()
+    .toLowerCase();
   if (SUPPORTED_MATRIX_MODES.includes(normalized)) {
     return normalized;
   }
   return DEFAULT_SMOKE_MATRIX_MODE;
 };
 const normalizeRotationKey = (value = DEFAULT_ROTATION_KEY) => {
-  const normalized = value.toString().trim();
+  const normalized = (value ?? DEFAULT_ROTATION_KEY).toString().trim();
   return normalized || DEFAULT_ROTATION_KEY;
 };
 
