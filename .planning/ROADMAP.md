@@ -88,9 +88,9 @@ Roadmap is milestone-oriented. Shipped milestone details are archived to keep th
   - [x] 04-01: Implement failed-fixture artifact parsing and rerun selection mode
   - [x] 04-02: Wire rerun mode into smoke command + CI-safe error handling
 
-- [ ] Phase 5: Reliability Failure Alerts (1/2 plans)
+- [ ] Phase 5: Reliability Failure Alerts (2/2 plans)
   - [x] 05-01: Implement webhook alert publisher and normalized failure payload builder
-  - [ ] 05-02: Integrate alert triggers into smoke + selector-health workflows
+  - [x] 05-02: Integrate alert triggers into smoke + selector-health workflows
 
 - [ ] Phase 6: Rotating Regional Matrix (0/2 plans)
   - [ ] 06-01: Extend fixture matrix with region metadata and deterministic rotation selector
