@@ -49,6 +49,8 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run reliability smoke
+        env:
+          RELIABILITY_ALERT_WEBHOOK_URL: ${{ secrets.RELIABILITY_ALERT_WEBHOOK_URL }}
         run: |
           EXTRA_ARGS=""
           if [ "${{ github.event.inputs.rerun_failed || 'false' }}" = "true" ]; then

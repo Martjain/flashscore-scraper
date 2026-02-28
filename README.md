@@ -135,12 +135,43 @@ npm run smoke:reliability -- --dry-run --rerun-failed --artifact /tmp/smoke-run.
 - A machine-readable artifact is always written before exit.
 - Exit code is non-zero for traversal failures or schema-gate failures.
 - Rerun preflight failures (missing/invalid artifact or no rerunnable failed fixtures) exit non-zero and print manual `--fixture` fallback guidance.
+- Alert delivery failures are warning-only and never override smoke/selector-health pass/fail exit status.
 
 Smoke artifacts:
 
 - `.planning/artifacts/smoke/latest.json`
 - `.planning/artifacts/smoke/schema-input-latest.json`
 - Timestamped history files under `.planning/artifacts/smoke/`
+
+## Failure Alerts
+
+Smoke and selector-health commands can emit one webhook alert per failing run after final result and report persistence.
+
+### Environment Variables
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `RELIABILITY_ALERT_WEBHOOK_URL` | Webhook destination for failure alerts | unset (alerts disabled) |
+| `RELIABILITY_ALERT_ENABLED` | Global enable/disable override (`false` disables even in CI) | enabled when other gates pass |
+| `RELIABILITY_ALERT_ALLOW_LOCAL` | Allow alert sends outside CI for local testing (`true`) | disabled (CI-only default) |
+
+### Trigger Behavior
+
+- Alerts are sent only when final command `RESULT` is `fail`.
+- Success runs do not emit routine success/recovery alerts.
+- At most one alert is emitted per failing smoke run and per failing selector-health run.
+- Webhook/network failures produce warning logs only.
+
+### Payload Contract
+
+Alert payloads are structured JSON with stable keys, including:
+
+- `payloadVersion`, `eventType`, `source` (`smoke` or `selector_health`)
+- `runId`, `summary`, `failureCode`
+- `timestamps.startedAt|completedAt|emittedAt` (UTC ISO-8601)
+- `context.stage`, `context.scope`, `context.mode`
+- `affectedIdentifiers` (deterministic sorted list) plus `affectedIdentifiersReason` when empty
+- `references.artifactPath|historyPath|logUrl` (when available)
 
 ## CI Reliability Workflow
 
@@ -152,6 +183,7 @@ Triggers:
 - Weekly `schedule`
 
 The job installs dependencies + Playwright Chromium, runs `npm run smoke:reliability`, and uploads smoke artifacts for both pass/fail runs.
+When `RELIABILITY_ALERT_WEBHOOK_URL` is configured as a repository secret, CI smoke failures can emit webhook alerts.
 
 `workflow_dispatch` inputs also support:
 
