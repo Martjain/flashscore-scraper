@@ -1,4 +1,5 @@
 import { FileTypes } from "../../constants/index.js";
+import { CRITICAL_SELECTOR_SCOPE_ORDER } from "../../selector-health/contracts/keys.js";
 
 export const parseArguments = () => {
   const args = process.argv.slice(2);
@@ -50,6 +51,97 @@ export const parseArguments = () => {
         `You provided a league "${options.league}" but did not specify a country\n` +
         `Usage example: country=<country-name> league=<league-name>`
     );
+  }
+
+  return options;
+};
+
+const SUPPORTED_SELECTOR_HEALTH_SCOPES = Object.freeze([
+  ...CRITICAL_SELECTOR_SCOPE_ORDER,
+]);
+
+const parseOptionValue = (args, index, flagName) => {
+  const arg = args[index];
+  if (arg.startsWith(`${flagName}=`)) {
+    return arg.slice(`${flagName}=`.length);
+  }
+
+  if (arg === flagName) {
+    const nextArg = args[index + 1];
+    if (!nextArg || nextArg.startsWith("--")) {
+      throw Error(`❌ Missing value for ${flagName}`);
+    }
+    return nextArg;
+  }
+
+  return null;
+};
+
+const parsePositiveInteger = (value, flagName) => {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw Error(`❌ Invalid ${flagName}: "${value}" (expected positive integer)`);
+  }
+  return parsed;
+};
+
+export const parseSelectorHealthArguments = (rawArgs = process.argv.slice(2)) => {
+  const options = {
+    scopes: [...SUPPORTED_SELECTOR_HEALTH_SCOPES],
+    sample: 1,
+    strict: false,
+    failFast: false,
+    dryRun: false,
+    quiet: false,
+    report: null,
+    help: false,
+  };
+  const scopes = [];
+
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const arg = rawArgs[index];
+
+    if (arg === "--strict") options.strict = true;
+    if (arg === "--fail-fast") options.failFast = true;
+    if (arg === "--dry-run") options.dryRun = true;
+    if (arg === "--quiet") options.quiet = true;
+    if (arg === "--help" || arg === "-h") options.help = true;
+
+    if (arg === "--scope" || arg.startsWith("--scope=")) {
+      const value = parseOptionValue(rawArgs, index, "--scope");
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+        .forEach((scope) => scopes.push(scope));
+      if (arg === "--scope") index += 1;
+    }
+
+    if (arg === "--sample" || arg.startsWith("--sample=")) {
+      const value = parseOptionValue(rawArgs, index, "--sample");
+      options.sample = parsePositiveInteger(value, "--sample");
+      if (arg === "--sample") index += 1;
+    }
+
+    if (arg === "--report" || arg.startsWith("--report=")) {
+      options.report = parseOptionValue(rawArgs, index, "--report");
+      if (arg === "--report") index += 1;
+    }
+  }
+
+  if (scopes.length > 0) {
+    const invalidScopes = scopes.filter(
+      (scope) => !SUPPORTED_SELECTOR_HEALTH_SCOPES.includes(scope)
+    );
+
+    if (invalidScopes.length > 0) {
+      throw Error(
+        `❌ Invalid scope(s): ${invalidScopes.join(", ")}\n` +
+          `Accepted scopes are: ${SUPPORTED_SELECTOR_HEALTH_SCOPES.join(", ")}`
+      );
+    }
+
+    options.scopes = Array.from(new Set(scopes));
   }
 
   return options;

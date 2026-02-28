@@ -76,6 +76,22 @@ Optional: limit checks to the first `N` entries:
 npm run validate:schema -- src/data/usa_nfl.array.json --sample 10
 ```
 
+## Selector Health Check
+
+Run a preflight selector reliability check before long scraping runs:
+
+```bash
+npm run health:selectors -- --scope countries --scope leagues --sample 1
+```
+
+Strict mode is intended for CI and fails when fallback selectors are used:
+
+```bash
+npm run health:selectors -- --strict --scope match-list --scope match-detail --sample 1 --fail-fast
+```
+
+By default, reports are written to `.planning/artifacts/selector-health/latest.json` and timestamped history files are retained automatically (latest + last 30 runs).
+
 ## Data Structure
 
 Each match result includes:
