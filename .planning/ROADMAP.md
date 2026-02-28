@@ -12,7 +12,7 @@ This roadmap delivers a focused brownfield migration so the scraper runs on Flas
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Flashscore USA Migration** - Switch base domain and update selectors for stable scraping compatibility
+- [x] **Phase 1: Flashscore USA Migration** - Switch base domain and update selectors for stable scraping compatibility
 
 ## Phase Details
 
@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01: Update base URL and discovery/match selectors for Flashscore USA DOM
-- [ ] 01-02: Validate extraction flow and preserve output schema compatibility
+- [x] 01-02: Validate extraction flow and preserve output schema compatibility
 
 ## Progress
 
@@ -38,4 +38,4 @@ Phases execute in numeric order: 1 → 1.1 → 2 → 2.1 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Flashscore USA Migration | 1/2 | In Progress | - |
+| 1. Flashscore USA Migration | 2/2 | Complete | 2026-02-28 |

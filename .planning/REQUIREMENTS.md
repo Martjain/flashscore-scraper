@@ -16,7 +16,7 @@
 
 ### Data Output Compatibility
 
-- [ ] **DATA-01**: JSON, JSON-array, and CSV outputs keep backward-compatible field structure for existing consumers
+- [x] **DATA-01**: JSON, JSON-array, and CSV outputs keep backward-compatible field structure for existing consumers
 
 ## v2 Requirements
 
@@ -40,7 +40,7 @@
 | CORE-01 | Phase 1 | Complete |
 | SCRP-01 | Phase 1 | Complete |
 | SCRP-02 | Phase 1 | Complete |
-| DATA-01 | Phase 1 | Pending |
+| DATA-01 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 4 total
