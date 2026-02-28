@@ -8,6 +8,11 @@ import {
   buildSmokeSchemaPayload,
   runSmokeSuite,
 } from "../src/reliability/smoke/run-smoke-suite.js";
+import { getSmokeFixtureIds } from "../src/reliability/smoke/fixture-matrix.js";
+import {
+  DEFAULT_RERUN_ARTIFACT_PATH,
+  resolveFailedFixtureIdsFromArtifact,
+} from "../src/reliability/smoke/rerun-fixtures.js";
 
 const DEFAULT_SCHEMA_INPUT_PATH =
   ".planning/artifacts/smoke/schema-input-latest.json";
@@ -21,12 +26,93 @@ Options:
   --sample <n>        Number of fixtures to run (default: 3)
   --max-matches <n>   Max matches checked per fixture (default: 1)
   --fixture <id>      Restrict to fixture id(s), repeatable or comma-separated
+  --rerun-failed      Rerun only failed fixtures from smoke artifact
+  --artifact <path>   Smoke artifact path for rerun mode (default: .planning/artifacts/smoke/latest.json)
   --timeout-ms <n>    Per-fixture timeout in milliseconds (default: 90000)
   --dry-run           Skip browser work and validate selection + artifact flow
   --report <path>     Override JSON report path (default: .planning/artifacts/smoke/latest.json)
   --quiet             Print only compact result lines
   --help, -h          Show this help
 `.trim();
+
+class RerunPreflightError extends Error {
+  constructor(code, message, details = {}) {
+    super(message);
+    this.name = "RerunPreflightError";
+    this.code = code;
+    this.details = details;
+  }
+}
+
+const buildManualFallbackCommand = (fixtureIds = []) => {
+  const fallbackFixtureId = fixtureIds[0] || "argentina-liga-profesional";
+  return `npm run smoke:reliability -- --sample 1 --fixture ${fallbackFixtureId}`;
+};
+
+const resolveExecutionContext = async (options = {}) => {
+  if (!options.rerunFailed) {
+    return {
+      mode: options.dryRun ? "dry-run" : "live",
+      fixtureIds: options.fixtureIds,
+      artifactPath: null,
+      rerun: null,
+    };
+  }
+
+  const knownFixtureIds = getSmokeFixtureIds();
+  const fallbackCommand = buildManualFallbackCommand(knownFixtureIds);
+  const selection = await resolveFailedFixtureIdsFromArtifact({
+    artifactPath: options.artifact || DEFAULT_RERUN_ARTIFACT_PATH,
+    knownFixtureIds,
+  });
+
+  if (!selection.ok) {
+    throw new RerunPreflightError(
+      selection.error?.code || "artifact_preflight_failed",
+      `Rerun preflight failed: ${selection.error?.message || "invalid smoke artifact input."}`,
+      {
+        artifactPath: selection.artifactPath,
+        diagnostics: selection.diagnostics,
+        cause: selection.error,
+        fallbackCommand,
+      }
+    );
+  }
+
+  if (selection.fixtureIds.length === 0) {
+    throw new RerunPreflightError(
+      "no_rerunnable_failures",
+      `Rerun preflight failed: no rerunnable failed fixtures found in ${selection.artifactPath}.`,
+      {
+        artifactPath: selection.artifactPath,
+        diagnostics: selection.diagnostics,
+        fallbackCommand,
+      }
+    );
+  }
+
+  return {
+    mode: "rerun-failed",
+    fixtureIds: selection.fixtureIds,
+    artifactPath: selection.artifactPath,
+    rerun: {
+      artifactPath: selection.artifactPath,
+      selectedFixtureIds: selection.fixtureIds,
+      diagnostics: selection.diagnostics,
+    },
+  };
+};
+
+const applyExecutionContext = (result, options = {}, executionContext = {}) => ({
+  ...result,
+  mode: executionContext.mode || result.mode,
+  options: {
+    ...result.options,
+    rerunFailed: Boolean(options.rerunFailed),
+    artifact: executionContext.artifactPath || options.artifact || null,
+  },
+  rerun: executionContext.rerun || null,
+});
 
 const printRunSummary = (result, options = {}) => {
   const quiet = Boolean(options.quiet);
@@ -55,6 +141,8 @@ const printRunSummary = (result, options = {}) => {
 
 const buildRunnerFailure = (error, options = {}) => {
   const message = error instanceof Error ? error.message : "unknown_runner_error";
+  const isRerunPreflight = error instanceof RerunPreflightError;
+  const preflightDetails = isRerunPreflight ? error.details || {} : {};
   const now = new Date().toISOString();
   return {
     runId: `smoke-${Date.now()}`,
@@ -62,13 +150,15 @@ const buildRunnerFailure = (error, options = {}) => {
     completedAt: now,
     durationMs: 0,
     result: "fail",
-    mode: options.dryRun ? "dry-run" : "live",
+    mode: options.executionMode || (options.dryRun ? "dry-run" : "live"),
     options: {
       sample: options.sample,
       maxMatches: options.maxMatches,
       timeoutMs: options.timeoutMs,
       fixtureIds: options.fixtureIds,
       dryRun: options.dryRun,
+      rerunFailed: Boolean(options.rerunFailed),
+      artifact: options.artifact || null,
     },
     summary: {
       totalFixtures: 0,
@@ -81,15 +171,22 @@ const buildRunnerFailure = (error, options = {}) => {
     issues: [
       {
         fixtureId: "run",
-        failedStage: "runner",
+        failedStage: isRerunPreflight ? "rerun-preflight" : "runner",
         error: message,
+        code: isRerunPreflight ? error.code : null,
+        diagnostics: preflightDetails.diagnostics || null,
       },
     ],
+    rerun: options.rerun || null,
     schemaGate: {
       status: "fail",
       error: message,
       command: "runner",
       inputPath: null,
+      diagnostics:
+        preflightDetails.cause?.reason ||
+        preflightDetails.diagnostics ||
+        null,
     },
   };
 };
@@ -212,29 +309,48 @@ const run = async () => {
   let context;
 
   const options = parseSmokeReliabilityArguments();
+  let executionContext = {
+    mode: options.dryRun ? "dry-run" : "live",
+    fixtureIds: options.fixtureIds,
+    artifactPath: options.artifact || null,
+    rerun: null,
+  };
+
   if (options.help) {
     console.info(HELP_TEXT);
     return;
   }
 
   try {
+    executionContext = await resolveExecutionContext(options);
+
     if (!options.dryRun) {
       browser = await chromium.launch({ headless: true });
       context = await browser.newContext();
     }
 
+    const executionSample =
+      executionContext.mode === "rerun-failed"
+        ? Math.max(options.sample, executionContext.fixtureIds.length)
+        : options.sample;
+
     const result = await runSmokeSuite({
       context,
-      sample: options.sample,
+      sample: executionSample,
       maxMatches: options.maxMatches,
       timeoutMs: options.timeoutMs,
-      fixtureIds: options.fixtureIds,
+      fixtureIds: executionContext.fixtureIds,
       dryRun: options.dryRun,
     });
-    const schemaGate = await evaluateSchemaGate(result, {
+    const contextualResult = applyExecutionContext(
+      result,
+      options,
+      executionContext
+    );
+    const schemaGate = await evaluateSchemaGate(contextualResult, {
       dryRun: options.dryRun,
     });
-    const finalResult = mergeSchemaGate(result, schemaGate);
+    const finalResult = mergeSchemaGate(contextualResult, schemaGate);
 
     const report = await persistSmokeReport(finalResult, {
       reportPath: options.report,
@@ -251,7 +367,35 @@ const run = async () => {
     printRunSummary(enrichedResult, { quiet: options.quiet });
     process.exitCode = enrichedResult.result === "pass" ? 0 : 1;
   } catch (error) {
-    const failureResult = buildRunnerFailure(error, options);
+    if (error instanceof RerunPreflightError && !options.quiet) {
+      console.error(error.message);
+      if (error.details?.artifactPath) {
+        console.error(`Artifact: ${error.details.artifactPath}`);
+      }
+      if (error.details?.fallbackCommand) {
+        console.error(`Manual fallback: ${error.details.fallbackCommand}`);
+      }
+    }
+
+    const failureResult = buildRunnerFailure(error, {
+      ...options,
+      executionMode: options.rerunFailed
+        ? "rerun-failed"
+        : executionContext.mode,
+      fixtureIds: executionContext.fixtureIds || options.fixtureIds,
+      rerun:
+        executionContext.rerun ||
+        (error instanceof RerunPreflightError
+          ? {
+              artifactPath:
+                error.details?.artifactPath ||
+                options.artifact ||
+                DEFAULT_RERUN_ARTIFACT_PATH,
+              selectedFixtureIds: [],
+              diagnostics: error.details?.diagnostics || null,
+            }
+          : null),
+    });
     try {
       const report = await persistSmokeReport(failureResult, {
         reportPath: options.report,
