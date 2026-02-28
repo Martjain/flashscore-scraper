@@ -161,6 +161,8 @@ export const parseSmokeReliabilityArguments = (
     maxMatches: DEFAULT_SMOKE_MAX_MATCHES,
     timeoutMs: DEFAULT_SMOKE_TIMEOUT_MS,
     fixtureIds: [],
+    rerunFailed: false,
+    artifact: null,
     dryRun: false,
     quiet: false,
     report: null,
@@ -173,6 +175,7 @@ export const parseSmokeReliabilityArguments = (
 
     if (parseBooleanFlag(arg, "--dry-run")) options.dryRun = true;
     if (parseBooleanFlag(arg, "--quiet")) options.quiet = true;
+    if (parseBooleanFlag(arg, "--rerun-failed")) options.rerunFailed = true;
     if (arg === "--help" || arg === "-h") options.help = true;
 
     if (arg === "--sample" || arg.startsWith("--sample=")) {
@@ -207,10 +210,28 @@ export const parseSmokeReliabilityArguments = (
       options.report = parseOptionValue(rawArgs, index, "--report");
       if (arg === "--report") index += 1;
     }
+
+    if (arg === "--artifact" || arg.startsWith("--artifact=")) {
+      const value = parseOptionValue(rawArgs, index, "--artifact");
+      const normalized = value?.trim();
+      if (!normalized) {
+        throw Error("❌ Invalid --artifact value: expected non-empty file path");
+      }
+      options.artifact = normalized;
+      if (arg === "--artifact") index += 1;
+    }
   }
 
   if (fixtureIds.length > 0) {
     options.fixtureIds = Array.from(new Set(fixtureIds));
+  }
+
+  if (options.artifact && !options.rerunFailed) {
+    throw Error("❌ --artifact requires --rerun-failed");
+  }
+
+  if (options.rerunFailed && options.fixtureIds.length > 0) {
+    throw Error("❌ --rerun-failed cannot be combined with --fixture");
   }
 
   return options;
