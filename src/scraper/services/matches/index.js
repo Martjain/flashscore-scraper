@@ -1,19 +1,57 @@
 import { openPageAndNavigate, waitForSelectorSafe } from "../../index.js";
+import {
+  SELECTOR_CONTRACT_KEYS,
+  getCriticalSelectorContract,
+} from "../../../selector-health/contracts/index.js";
+import { resolveSelector } from "../../../selector-health/probe/resolveSelector.js";
+import { collectProbeDiagnostics } from "../../../selector-health/probe/collectProbeDiagnostics.js";
+
+const MATCH_LIST_CONTRACT = getCriticalSelectorContract(
+  SELECTOR_CONTRACT_KEYS.MATCH_LIST
+);
+const MATCH_DETAIL_CONTRACT = getCriticalSelectorContract(
+  SELECTOR_CONTRACT_KEYS.MATCH_DETAIL
+);
+
+const attachSelectorDiagnostics = (value, diagnostics) => {
+  Object.defineProperty(value, "selectorDiagnostics", {
+    value: diagnostics,
+    enumerable: false,
+    configurable: true,
+    writable: false,
+  });
+  return value;
+};
+
+const countSelectorMatches = async (page, selector) => {
+  try {
+    return await page.$$eval(selector, (elements) => elements.length);
+  } catch {
+    return 0;
+  }
+};
 
 export const getMatchLinks = async (context, leagueSeasonUrl, type) => {
   const page = await openPageAndNavigate(context, `${leagueSeasonUrl}/${type}`);
 
   const LOAD_MORE_SELECTOR =
     '[data-testid="wcl-buttonLink"], .event__more--static';
-  const MATCH_SELECTOR =
-    ".event__match.event__match--static.event__match--twoLine, .event__match[id^='g_']";
   const CLICK_DELAY = 600;
   const MAX_EMPTY_CYCLES = 4;
 
+  const listResolution = await resolveSelector(page, MATCH_LIST_CONTRACT);
+  const diagnostics = [collectProbeDiagnostics(listResolution)];
+
+  if (!listResolution.ok) {
+    await page.close();
+    return attachSelectorDiagnostics([], diagnostics);
+  }
+
+  const matchSelector = listResolution.matchedSelector;
   let emptyCycles = 0;
 
   while (true) {
-    const countBefore = await page.$$eval(MATCH_SELECTOR, (els) => els.length);
+    const countBefore = await countSelectorMatches(page, matchSelector);
 
     const loadMoreBtn = await page.$(LOAD_MORE_SELECTOR);
     if (!loadMoreBtn) break;
@@ -25,7 +63,7 @@ export const getMatchLinks = async (context, leagueSeasonUrl, type) => {
       break;
     }
 
-    const countAfter = await page.$$eval(MATCH_SELECTOR, (els) => els.length);
+    const countAfter = await countSelectorMatches(page, matchSelector);
 
     if (countAfter === countBefore) {
       emptyCycles++;
@@ -35,9 +73,9 @@ export const getMatchLinks = async (context, leagueSeasonUrl, type) => {
     }
   }
 
-  await waitForSelectorSafe(page, [MATCH_SELECTOR]);
+  await waitForSelectorSafe(page, [matchSelector]);
 
-  const matchIdList = await page.evaluate(() => {
+  const matchIdList = await page.evaluate((selector) => {
     const getIdFromUrl = (url) => {
       try {
         return new URL(url, window.location.origin).searchParams.get("mid");
@@ -46,23 +84,21 @@ export const getMatchLinks = async (context, leagueSeasonUrl, type) => {
       }
     };
 
-    return Array.from(
-      document.querySelectorAll(
-        ".event__match.event__match--static.event__match--twoLine, .event__match[id^='g_1_']"
-      )
-    ).map((element) => {
-      const id = element?.id?.replace(/^g_\d+_/, "");
-      const url =
-        element.querySelector("a.eventRowLink, a[href*='/match/']")?.href ??
-        null;
-      return { id: id || getIdFromUrl(url), url };
-    }).filter((match) => match.id || match.url);
-  });
+    return Array.from(document.querySelectorAll(selector))
+      .map((element) => {
+        const id = element?.id?.replace(/^g_\d+_/, "");
+        const url =
+          element.querySelector("a.eventRowLink, a[href*='/match/']")?.href ??
+          null;
+        return { id: id || getIdFromUrl(url), url };
+      })
+      .filter((match) => match.id || match.url);
+  }, matchSelector);
 
   await page.close();
 
   console.info(`✅ Found ${matchIdList.length} matches for ${type}`);
-  return matchIdList;
+  return attachSelectorDiagnostics(matchIdList, diagnostics);
 };
 
 export const getMatchData = async (context, { id: matchId, url }) => {
@@ -71,11 +107,19 @@ export const getMatchData = async (context, { id: matchId, url }) => {
   }
 
   const page = await openPageAndNavigate(context, url);
+  const detailResolution = await resolveSelector(page, MATCH_DETAIL_CONTRACT);
+  const diagnostics = [collectProbeDiagnostics(detailResolution)];
+
+  if (!detailResolution.ok) {
+    await page.close();
+    return attachSelectorDiagnostics(createEmptyMatchData(matchId), diagnostics);
+  }
+
   let statistics = [];
 
   try {
     await waitForSelectorSafe(page, [
-      ".duelParticipant__startTime",
+      detailResolution.matchedSelector,
       "div[data-testid='wcl-summaryMatchInformation'] > div",
     ]);
 
@@ -92,9 +136,12 @@ export const getMatchData = async (context, { id: matchId, url }) => {
       statistics = await extractMatchStatistics(page);
     }
 
-    return { matchId, ...matchData, information, statistics };
+    return attachSelectorDiagnostics(
+      { matchId, ...matchData, information, statistics },
+      diagnostics
+    );
   } catch {
-    return createEmptyMatchData(matchId);
+    return attachSelectorDiagnostics(createEmptyMatchData(matchId), diagnostics);
   } finally {
     await page.close();
   }

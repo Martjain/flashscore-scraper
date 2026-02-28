@@ -1,18 +1,39 @@
 import { BASE_URL, TIMEOUT } from "../../../constants/index.js";
-import { openPageAndNavigate, waitForSelectorSafe } from "../../index.js";
+import { openPageAndNavigate } from "../../index.js";
+import {
+  SELECTOR_CONTRACT_KEYS,
+  getCriticalSelectorContract,
+} from "../../../selector-health/contracts/index.js";
+import { resolveSelector } from "../../../selector-health/probe/resolveSelector.js";
+import { collectProbeDiagnostics } from "../../../selector-health/probe/collectProbeDiagnostics.js";
 
-const COUNTRY_SELECTORS = [
-  "#category-left-menu a[href*='/soccer/']",
-  "[class*='lmenu'] a[href*='/soccer/']",
-  "[data-testid*='left'] a[href*='/soccer/']",
-  "a[href*='/soccer/']",
-];
+const COUNTRY_CONTRACT = getCriticalSelectorContract(
+  SELECTOR_CONTRACT_KEYS.COUNTRIES
+);
+
+const attachSelectorDiagnostics = (value, diagnostics) => {
+  Object.defineProperty(value, "selectorDiagnostics", {
+    value: diagnostics,
+    enumerable: false,
+    configurable: true,
+    writable: false,
+  });
+  return value;
+};
 
 export const getListOfCountries = async (context) => {
   const page = await openPageAndNavigate(context, `${BASE_URL}/soccer/`);
-  await waitForSelectorSafe(page, COUNTRY_SELECTORS, TIMEOUT);
+  const resolution = await resolveSelector(page, COUNTRY_CONTRACT, {
+    timeoutMs: TIMEOUT,
+  });
+  const diagnostics = [collectProbeDiagnostics(resolution)];
 
-  const listOfCountries = await page.evaluate((selectors) => {
+  if (!resolution.ok) {
+    await page.close();
+    return attachSelectorDiagnostics([], diagnostics);
+  }
+
+  const listOfCountries = await page.evaluate((selector) => {
     const toSegments = (href) => {
       try {
         return new URL(href, window.location.origin).pathname
@@ -23,9 +44,7 @@ export const getListOfCountries = async (context) => {
       }
     };
 
-    const candidates = selectors.flatMap((selector) =>
-      Array.from(document.querySelectorAll(selector))
-    );
+    const candidates = Array.from(document.querySelectorAll(selector));
     const uniqueCountries = new Map();
 
     candidates.forEach((element) => {
@@ -46,8 +65,8 @@ export const getListOfCountries = async (context) => {
     return Array.from(uniqueCountries.values()).sort((a, b) =>
       a.name.localeCompare(b.name)
     );
-  }, COUNTRY_SELECTORS);
+  }, resolution.matchedSelector);
 
   await page.close();
-  return listOfCountries;
+  return attachSelectorDiagnostics(listOfCountries, diagnostics);
 };

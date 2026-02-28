@@ -1,5 +1,25 @@
 import { BASE_URL, TIMEOUT } from "../../../constants/index.js";
-import { openPageAndNavigate, waitForSelectorSafe } from "../../index.js";
+import { openPageAndNavigate } from "../../index.js";
+import {
+  SELECTOR_CONTRACT_KEYS,
+  getCriticalSelectorContract,
+} from "../../../selector-health/contracts/index.js";
+import { resolveSelector } from "../../../selector-health/probe/resolveSelector.js";
+import { collectProbeDiagnostics } from "../../../selector-health/probe/collectProbeDiagnostics.js";
+
+const LEAGUES_CONTRACT = getCriticalSelectorContract(
+  SELECTOR_CONTRACT_KEYS.LEAGUES
+);
+
+const attachSelectorDiagnostics = (value, diagnostics) => {
+  Object.defineProperty(value, "selectorDiagnostics", {
+    value: diagnostics,
+    enumerable: false,
+    configurable: true,
+    writable: false,
+  });
+  return value;
+};
 
 export const getListOfLeagues = async (context, countryId) => {
   const countrySlug = normalizeCountrySlug(countryId);
@@ -7,16 +27,17 @@ export const getListOfLeagues = async (context, countryId) => {
     context,
     `${BASE_URL}/soccer/${countrySlug}/`
   );
+  const resolution = await resolveSelector(page, LEAGUES_CONTRACT, {
+    timeoutMs: TIMEOUT,
+  });
+  const diagnostics = [collectProbeDiagnostics(resolution)];
 
-  const selectors = [
-    `#category-left-menu a[href*='/soccer/${countrySlug}/']`,
-    `[class*='lmenu'] a[href*='/soccer/${countrySlug}/']`,
-    `[data-testid*='left'] a[href*='/soccer/${countrySlug}/']`,
-    `a[href*='/soccer/${countrySlug}/']`,
-  ];
-  await waitForSelectorSafe(page, selectors, TIMEOUT);
+  if (!resolution.ok) {
+    await page.close();
+    return attachSelectorDiagnostics([], diagnostics);
+  }
 
-  const listOfLeagues = await page.evaluate(({ countrySlug, selectors }) => {
+  const listOfLeagues = await page.evaluate(({ countrySlug, selector }) => {
     const toSegments = (href) => {
       try {
         return new URL(href, window.location.origin).pathname
@@ -27,9 +48,7 @@ export const getListOfLeagues = async (context, countryId) => {
       }
     };
 
-    const candidates = selectors.flatMap((selector) =>
-      Array.from(document.querySelectorAll(selector))
-    );
+    const candidates = Array.from(document.querySelectorAll(selector));
     const uniqueLeagues = new Map();
 
     candidates.forEach((element) => {
@@ -48,10 +67,10 @@ export const getListOfLeagues = async (context, countryId) => {
     return Array.from(uniqueLeagues.values()).sort((a, b) =>
       a.name.localeCompare(b.name)
     );
-  }, { countrySlug, selectors });
+  }, { countrySlug, selector: resolution.matchedSelector });
 
   await page.close();
-  return listOfLeagues;
+  return attachSelectorDiagnostics(listOfLeagues, diagnostics);
 };
 
 const normalizeCountrySlug = (countryId = "") =>

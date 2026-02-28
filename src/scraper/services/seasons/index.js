@@ -1,19 +1,40 @@
 import { TIMEOUT } from "../../../constants/index.js";
-import { openPageAndNavigate, waitForSelectorSafe } from "../../index.js";
+import { openPageAndNavigate } from "../../index.js";
+import {
+  SELECTOR_CONTRACT_KEYS,
+  getCriticalSelectorContract,
+} from "../../../selector-health/contracts/index.js";
+import { resolveSelector } from "../../../selector-health/probe/resolveSelector.js";
+import { collectProbeDiagnostics } from "../../../selector-health/probe/collectProbeDiagnostics.js";
+
+const SEASONS_CONTRACT = getCriticalSelectorContract(
+  SELECTOR_CONTRACT_KEYS.SEASONS
+);
+
+const attachSelectorDiagnostics = (value, diagnostics) => {
+  Object.defineProperty(value, "selectorDiagnostics", {
+    value: diagnostics,
+    enumerable: false,
+    configurable: true,
+    writable: false,
+  });
+  return value;
+};
 
 export const getListOfSeasons = async (context, leagueUrl) => {
   const normalizedLeagueUrl = leagueUrl?.replace(/\/+$/, "");
   const page = await openPageAndNavigate(context, `${normalizedLeagueUrl}/archive`);
+  const resolution = await resolveSelector(page, SEASONS_CONTRACT, {
+    timeoutMs: TIMEOUT,
+  });
+  const diagnostics = [collectProbeDiagnostics(resolution)];
 
-  const selectors = [
-    ".archiveLatte__season > a.archiveLatte__text--clickable",
-    ".archiveLatte__season > a",
-    "div.archive__season > a",
-    ".archive__row .archive__season a",
-  ];
-  await waitForSelectorSafe(page, selectors, TIMEOUT);
+  if (!resolution.ok) {
+    await page.close();
+    return attachSelectorDiagnostics([], diagnostics);
+  }
 
-  const listOfLeagueSeasons = await page.evaluate(({ selectors, leagueUrl }) => {
+  const listOfLeagueSeasons = await page.evaluate(({ selector, leagueUrl }) => {
     const toSegments = (href) => {
       try {
         return new URL(href, window.location.origin).pathname
@@ -29,9 +50,7 @@ export const getListOfSeasons = async (context, leagueUrl) => {
     const countrySlug = leagueSegments[1];
     const leagueSlug = leagueSegments[2];
 
-    const candidates = selectors.flatMap((selector) =>
-      Array.from(document.querySelectorAll(selector))
-    );
+    const candidates = Array.from(document.querySelectorAll(selector));
     const uniqueSeasons = new Map();
 
     candidates.forEach((element) => {
@@ -55,8 +74,8 @@ export const getListOfSeasons = async (context, leagueUrl) => {
     });
 
     return Array.from(uniqueSeasons.values());
-  }, { selectors, leagueUrl: normalizedLeagueUrl });
+  }, { selector: resolution.matchedSelector, leagueUrl: normalizedLeagueUrl });
 
   await page.close();
-  return listOfLeagueSeasons;
+  return attachSelectorDiagnostics(listOfLeagueSeasons, diagnostics);
 };
