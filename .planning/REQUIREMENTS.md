@@ -42,15 +42,15 @@ Explicitly excluded from v1.2 scope.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RELY-07 | TBD | Pending |
-| RELY-08 | TBD | Pending |
-| RELY-09 | TBD | Pending |
+| RELY-07 | Phase 4 | Pending |
+| RELY-08 | Phase 5 | Pending |
+| RELY-09 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 3 total
-- Mapped to phases: 0
-- Unmapped: 3 ⚠️
+- Mapped to phases: 3
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after milestone v1.2 initialization*
+*Last updated: 2026-02-28 after roadmap phase mapping*
