@@ -179,6 +179,14 @@ Smoke and selector-health commands can emit one webhook alert per failing run af
 | `RELIABILITY_ALERT_WEBHOOK_URL` | Webhook destination for failure alerts | unset (alerts disabled) |
 | `RELIABILITY_ALERT_ENABLED` | Global enable/disable override (`false` disables even in CI) | enabled when other gates pass |
 | `RELIABILITY_ALERT_ALLOW_LOCAL` | Allow alert sends outside CI for local testing (`true`) | disabled (CI-only default) |
+| `RELIABILITY_ALERT_DEDUPE_ENABLED` | Global dedupe on/off override (`false` disables suppression) | enabled |
+| `RELIABILITY_ALERT_DEDUPE_COOLDOWN` | Global cooldown window (`15m`, `1h`, `30s`, `900000`) | `15m` |
+| `RELIABILITY_ALERT_DEDUPE_SMOKE_ENABLED` | Smoke-specific dedupe override | inherits global |
+| `RELIABILITY_ALERT_DEDUPE_SMOKE_COOLDOWN` | Smoke-specific cooldown override | inherits global |
+| `RELIABILITY_ALERT_DEDUPE_SELECTOR_HEALTH_ENABLED` | Selector-health-specific dedupe override | inherits global |
+| `RELIABILITY_ALERT_DEDUPE_SELECTOR_HEALTH_COOLDOWN` | Selector-health-specific cooldown override | inherits global |
+
+Duration values accept `ms|s|m|h|d` suffixes. Invalid boolean/duration values are treated as non-fatal: alerting remains active and the runtime falls back to last-known-valid effective policy values.
 
 ### Trigger Behavior
 
@@ -186,6 +194,22 @@ Smoke and selector-health commands can emit one webhook alert per failing run af
 - Success runs do not emit routine success/recovery alerts.
 - At most one alert is emitted per failing smoke run and per failing selector-health run.
 - Webhook/network failures produce warning logs only.
+- Dedupe suppression blocks in-window duplicate alerts for the same signature (`fixture + check type + normalized error class + region + source/environment/workflow context`).
+- First failure emits, in-window duplicates suppress, and the first post-cooldown emit includes a summary of suppressed duplicates.
+
+### Dedupe Policy Examples
+
+Use global defaults in CI:
+
+```bash
+CI=true RELIABILITY_ALERT_WEBHOOK_URL=https://example.invalid/webhook RELIABILITY_ALERT_DEDUPE_COOLDOWN=15m npm run smoke:reliability -- --sample 1 --quiet
+```
+
+Use source-specific override for selector health while keeping smoke at global policy:
+
+```bash
+CI=true RELIABILITY_ALERT_WEBHOOK_URL=https://example.invalid/webhook RELIABILITY_ALERT_DEDUPE_COOLDOWN=15m RELIABILITY_ALERT_DEDUPE_SELECTOR_HEALTH_COOLDOWN=1h npm run health:selectors -- --scope countries --sample 1 --quiet
+```
 
 ### Payload Contract
 
@@ -197,6 +221,16 @@ Alert payloads are structured JSON with stable keys, including:
 - `context.stage`, `context.scope`, `context.mode`
 - `affectedIdentifiers` (deterministic sorted list) plus `affectedIdentifiersReason` when empty
 - `references.artifactPath|historyPath|logUrl` (when available)
+- `dedupe.decision|reason|signatureKey|cooldownMs|state|suppressionSummary`
+
+### Dedupe Audit Trail
+
+Suppression/emission decisions are visible in both runtime output and persisted artifacts:
+
+- Non-quiet runs print `[alert-dedupe]` lines whenever a duplicate is suppressed or when a post-cooldown alert emits with prior suppression context.
+- Smoke artifact (`.planning/artifacts/smoke/latest.json`) includes `alertDedupe.entries` and `alerts.dedupe` rollups by signature.
+- Selector-health artifact (`.planning/artifacts/selector-health/latest.json`) includes the same dedupe rollup fields.
+- Selector-health non-quiet summary includes an `Alert dedupe:` section with signature, decision, reason, suppressed count, cooldown boundary, and prior window summary fields.
 
 ## CI Reliability Workflow
 
