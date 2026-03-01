@@ -59,3 +59,14 @@ Next step: run `$gsd-new-milestone` to define requirements and phase roadmap for
 | v1.1 Reliability Hardening | Complete | 2/2 | 2026-02-28 |
 | v1.2 Reliability Operations | Complete | 3/3 | 2026-02-28 |
 | v1.3 Reliability Signal Quality | Complete | 2/2 | 2026-03-01 |
+
+### Phase 9: Generic selector workflow and fallback hardening
+
+**Goal:** Add a generic selector health workflow and harden discovery fallbacks so one selector fix applies across countries/leagues/seasons.
+**Requirements**: SCRP-01, RELY-01, RELY-02
+**Depends on:** Phase 8
+**Plans:** 2 plans
+
+Plans:
+- [x] 09-01 Generic selector health mode and representative target selection
+- [x] 09-02 Generic discovery fallback hardening for country/league/season services
