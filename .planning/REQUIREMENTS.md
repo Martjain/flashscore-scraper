@@ -13,7 +13,7 @@ Requirements for milestone v1.3 Reliability Signal Quality. Each requirement map
 
 ### Reliability Trend Reporting
 
-- [ ] **RELY-11**: Operator can generate failure trend summaries grouped by fixture and region across a selectable lookback window using persisted reliability artifacts.
+- [x] **RELY-11**: Operator can generate failure trend summaries grouped by fixture and region across a selectable lookback window using persisted reliability artifacts.
 
 ## v2 Requirements
 
@@ -41,7 +41,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | RELY-10 | Phase 7 | Complete |
-| RELY-11 | Phase 8 | Pending |
+| RELY-11 | Phase 8 | Complete |
 
 **Coverage:**
 - v1 requirements: 2 total
