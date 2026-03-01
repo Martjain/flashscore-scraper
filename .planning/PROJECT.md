@@ -15,6 +15,7 @@ Users can reliably extract structured league match results and statistics into r
   - v1.1 Reliability Hardening (2026-02-28)
   - v1.2 Reliability Operations (2026-02-28)
   - v1.3 Reliability Signal Quality (2026-03-01)
+  - v1.4 Generic Selector Hardening (2026-03-01)
 - **Key commands and workflows:**
   - `npm run validate:schema`
   - `npm run health:selectors`
@@ -24,7 +25,7 @@ Users can reliably extract structured league match results and statistics into r
 
 ## Next Milestone Goals
 
-- Define v1.4 requirements and roadmap scope (`$gsd-new-milestone`).
+- Define v1.5 requirements and roadmap scope (`$gsd-new-milestone`).
 - Prioritize reliability consumption experience (for example dashboard or richer trend analysis workflows).
 - Evaluate escalation-channel strategy beyond single-webhook failure notifications.
 
@@ -85,6 +86,8 @@ Users can reliably extract structured league match results and statistics into r
 | Use one smoke command for local and CI | Avoid behavior drift across environments | ✓ Adopted in v1.1 |
 | Keep v1.2 focused on operational reliability (rerun/alerting/matrix) | Increase signal and recovery speed without architecture churn | ✓ Adopted in v1.2 |
 | Keep v1.3 focused on signal quality (dedupe + trend visibility) | Reduce alert fatigue and expose failure patterns before adding new reliability surfaces | ✓ Adopted in v1.3 |
+| Add explicit generic selector-health mode with representative-path probing | Align health checks to shared selector contracts so one fix applies broadly | ✓ Adopted in v1.4 |
+| Combine strict contracts with filtered fallback discovery in country/league/season services | Preserve resilience under layout drift without widening extraction scope | ✓ Adopted in v1.4 |
 
 ---
-*Last updated: 2026-03-01 after v1.3 milestone completion*
+*Last updated: 2026-03-01 after v1.4 milestone completion*

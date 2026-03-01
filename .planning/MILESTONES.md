@@ -1,5 +1,25 @@
 # Milestones
 
+## v1.4 Generic Selector Hardening (Shipped: 2026-03-01)
+
+**Phases completed:** 1 phase, 2 plans, 6 tests (UAT)
+**Execution stats:** 3 commits, 17 files changed, +949/-90 lines, ~19 minutes execution window
+
+**Key accomplishments:**
+- Added explicit selector-health generic mode (`--generic` / `--pick-any`) with deterministic representative-path probing and clear target-mode reporting.
+- Added strict CLI guardrails to reject ambiguous selector-health argument combinations (notably generic + sample conflicts) while preserving sample/all behavior.
+- Hardened country discovery by combining contract selector extraction with broad `/soccer/` fallback anchor collection and slug-level deduplication.
+- Hardened league/season discovery with primary-first extraction plus filtered fallback selector passes for layout/container drift.
+- Tightened league selector contract anchors toward league-specific left-menu patterns to reduce false positives.
+- Completed phase UAT with 6/6 checks passed, including generic-mode help/dry-run/quiet flows and discovery-chain coverage thresholds.
+
+### Known Gaps
+
+- No dedicated milestone audit file (`.planning/v1.4-MILESTONE-AUDIT.md`) was generated before archival; milestone accepted as shipped based on complete phase summaries, verification report, and passing UAT.
+- No active `.planning/REQUIREMENTS.md` existed at completion time; requirements context for this milestone was preserved from PROJECT.md into `milestones/v1.4-REQUIREMENTS.md`.
+
+---
+
 ## v1.3 Reliability Signal Quality (Shipped: 2026-03-01)
 
 **Phases completed:** 2 phases, 4 plans, 12 tasks

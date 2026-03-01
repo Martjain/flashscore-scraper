@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
+milestone: v1.4
+milestone_name: Generic Selector Hardening
 status: unknown
-stopped_at: Completed phase 9
-last_updated: "2026-03-01T18:47:55Z"
+stopped_at: Completed v1.4 milestone
+last_updated: "2026-03-01T19:07:31Z"
 progress:
   total_phases: 9
   completed_phases: 9
@@ -19,14 +19,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can reliably extract structured league match results and statistics into reusable local data files with stable schema contracts.
-**Current focus:** Phase 9 execution completed; awaiting next milestone definition
+**Current focus:** v1.4 archived; awaiting next milestone definition
 
 ## Current Position
 
 Phase: Completed phase state
 Plan: N/A
-Status: Phase 9 complete, awaiting next milestone definition
-Last activity: 2026-03-01 - Completed phase 9 (Generic selector workflow and fallback hardening)
+Status: v1.4 milestone complete, awaiting next milestone definition
+Last activity: 2026-03-01 - Completed v1.4 milestone archival (Generic Selector Hardening)
 
 Progress: [██████████] 100%
 
@@ -59,6 +59,7 @@ Recent decisions affecting current work:
 - [Phase 08]: CI trend generation runs with if: always() — Trend artifacts remain available even when smoke checks fail.
 - [Phase 09]: Selector-health generic mode uses deterministic representative-path probing and exposes explicit target-mode metadata in operator output.
 - [Phase 09]: Country/league/season discovery now combines strict contracts with filtered fallback selectors to stay resilient under menu/layout drift.
+- [Milestone v1.4 close]: Archived roadmap/requirements snapshots and completed Phase 9 UAT with 6/6 tests passing.
 
 ### Roadmap Evolution
 
