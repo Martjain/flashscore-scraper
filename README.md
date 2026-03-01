@@ -17,6 +17,7 @@ This fork maintains its own roadmap and reliability hardening changes.
 - JSON schema validator (`npm run validate:schema`) for output compatibility checks.
 - Selector health contracts and probes (`npm run health:selectors`) for early DOM drift detection.
 - End-to-end reliability smoke runner (`npm run smoke:reliability`) with required schema gating.
+- Reliability trend summary generator (`npm run trend:reliability`) for fixture/region failure history analysis.
 - CI reliability workflow (`.github/workflows/reliability-smoke.yml`) with manual + scheduled execution.
 
 ## Requirements
@@ -42,6 +43,7 @@ npx playwright install --with-deps chromium
 | `npm run validate:schema -- <file>` | Validate output JSON contract |
 | `npm run health:selectors -- [flags]` | Probe selector contracts and emit diagnostics |
 | `npm run smoke:reliability -- [flags]` | Run bounded traversal smoke with required schema gate |
+| `npm run trend:reliability -- [flags]` | Build lookback-bounded reliability trend summaries from persisted artifacts |
 
 ## Main Scraper Usage
 
@@ -168,6 +170,50 @@ Extended artifacts include a `selection` block with deterministic provenance:
 - `selection.selectedRegion` + `selection.regionToken`
 - `selection.fixtureIds` + `selection.reason`
 
+## Reliability Trend Summaries
+
+Generate fixture/region trend summaries from persisted smoke + selector-health artifacts:
+
+```bash
+npm run trend:reliability -- --lookback-hours 168
+```
+
+Write report to a custom path:
+
+```bash
+npm run trend:reliability -- --lookback-hours 72 --report /tmp/reliability-trends.json
+```
+
+Override source directories:
+
+```bash
+npm run trend:reliability -- --smoke-dir .planning/artifacts/smoke --selector-health-dir .planning/artifacts/selector-health
+```
+
+### Trend Output Contract
+
+Trend report JSON always includes these top-level keys:
+
+- `window` (lookback hours + start/end timestamps)
+- `totals` (runs, failedRuns, failureRate, observations, failedObservations, failureCount)
+- `byFixture` (grouped fixture metrics with runs/failedRuns/failureCount/failureRate)
+- `byRegion` (grouped region metrics with runs/failedRuns/failureCount/failureRate)
+- `diagnostics` (history loading diagnostics: considered/loaded/skipped/parse/missing-field stats)
+
+### Diagnostics Interpretation
+
+- `missingDirectories`: expected source directory does not exist (history unavailable for that source).
+- `missingRequiredFields`: artifact JSON exists but misses required run keys.
+- `parseFailures`: artifact file could not be read or parsed.
+- `skippedOutsideWindow`: run was valid but outside `--lookback-hours`.
+
+These diagnostics are explicit by design: sparse or partial history does not silently drop data.
+
+Trend artifacts:
+
+- `.planning/artifacts/reliability-trends/latest.json`
+- Timestamped history files under `.planning/artifacts/reliability-trends/`
+
 ## Failure Alerts
 
 Smoke and selector-health commands can emit one webhook alert per failing run after final result and report persistence.
@@ -242,6 +288,7 @@ Triggers:
 - Weekly `schedule`
 
 The job installs dependencies + Playwright Chromium, runs `npm run smoke:reliability`, and uploads smoke artifacts for both pass/fail runs.
+It also runs `npm run trend:reliability -- --lookback-hours 168 --quiet` and uploads reliability trend artifacts on every run (`if: always()`).
 Scheduled executions automatically set:
 
 - `RELIABILITY_SMOKE_MATRIX_MODE=extended`
