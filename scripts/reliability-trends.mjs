@@ -1,10 +1,11 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import {
   parseReliabilityTrendArguments,
-  DEFAULT_RELIABILITY_TREND_LOOKBACK_HOURS,
 } from "../src/cli/arguments/index.js";
 import { buildReliabilityTrendSummary } from "../src/reliability/trends/index.js";
+import {
+  DEFAULT_RELIABILITY_TREND_REPORT_PATH,
+  persistReliabilityTrendReport,
+} from "../src/reliability/trends/reporting.js";
 
 const HELP_TEXT = `
 Usage:
@@ -34,19 +35,6 @@ const printTopGroups = (title, groups, keyField) => {
       `- ${entry[keyField]} | runs=${entry.runs} failed=${entry.failedRuns} failures=${entry.failureCount} rate=${formatPercent(entry.failureRate)}`
     );
   });
-};
-
-const maybeWriteReport = async (summary, reportPath) => {
-  if (!reportPath) return null;
-
-  const absolutePath = path.resolve(reportPath);
-  await fs.mkdir(path.dirname(absolutePath), { recursive: true });
-  await fs.writeFile(
-    absolutePath,
-    `${JSON.stringify(summary, null, 2)}\n`,
-    "utf8"
-  );
-  return absolutePath;
 };
 
 const run = async () => {
@@ -86,7 +74,10 @@ const run = async () => {
     ...summary,
   };
 
-  const reportPath = await maybeWriteReport(output, options.report);
+  const persistence = await persistReliabilityTrendReport(output, {
+    reportPath: options.report || DEFAULT_RELIABILITY_TREND_REPORT_PATH,
+    keepHistory: 30,
+  });
 
   if (!options.quiet) {
     console.info("Reliability Trend Summary");
@@ -104,9 +95,9 @@ const run = async () => {
     console.info(
       `\nDiagnostics: loaded=${output.diagnostics.filesLoaded} considered=${output.diagnostics.filesConsidered} parseFailures=${output.diagnostics.parseFailures.length} missingFields=${output.diagnostics.missingRequiredFields.length} skippedOutsideWindow=${output.diagnostics.skippedOutsideWindow.length}`
     );
-    if (reportPath) {
-      console.info(`Report: ${reportPath}`);
-    }
+    console.info(`Report (latest): ${persistence.latestPath}`);
+    console.info(`Report (history): ${persistence.historyPath}`);
+    console.info(`Pruned history files: ${persistence.prunedHistoryFiles.length}`);
   }
 
   console.info("RESULT: pass");
@@ -119,4 +110,3 @@ run().catch((error) => {
   console.info("RESULT: fail");
   process.exitCode = 1;
 });
-

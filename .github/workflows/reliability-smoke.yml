@@ -87,11 +87,24 @@ jobs:
             --max-matches "${{ github.event.inputs.max_matches || '1' }}" \
             $EXTRA_ARGS
 
+      - name: Generate reliability trend summary
+        if: always()
+        run: npm run trend:reliability -- --lookback-hours 168 --quiet
+
       - name: Upload smoke artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: reliability-smoke-artifacts
           path: .planning/artifacts/smoke/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload reliability trend artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reliability-trend-artifacts
+          path: .planning/artifacts/reliability-trends/
           if-no-files-found: warn
           retention-days: 14
