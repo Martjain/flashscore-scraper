@@ -44,25 +44,41 @@ export const getListOfCountries = async (context) => {
       }
     };
 
-    const candidates = Array.from(document.querySelectorAll(selector));
-    const uniqueCountries = new Map();
+    const collectCountries = (elements) => {
+      const uniqueCountries = new Map();
 
-    candidates.forEach((element) => {
-      const segments = toSegments(element.href);
-      if (segments[0] !== "soccer" || segments.length !== 2) return;
+      elements.forEach((element) => {
+        const segments = toSegments(element.href);
+        if (segments[0] !== "soccer" || segments.length !== 2) return;
 
-      const name = element.textContent?.trim().replace(/\s+/g, " ");
-      const countrySlug = segments[1];
-      if (!name || !countrySlug) return;
+        const name = element.textContent?.trim().replace(/\s+/g, " ");
+        const countrySlug = segments[1];
+        if (!name || !countrySlug) return;
 
-      uniqueCountries.set(countrySlug, {
-        name,
-        id: countrySlug,
-        url: `${window.location.origin}/soccer/${countrySlug}/`,
+        uniqueCountries.set(countrySlug, {
+          name,
+          id: countrySlug,
+          url: `${window.location.origin}/soccer/${countrySlug}/`,
+        });
       });
+
+      return uniqueCountries;
+    };
+
+    const mergedCountries = new Map();
+    const candidateSelectors = [selector, "a[href*='/soccer/']"];
+
+    candidateSelectors.forEach((candidateSelector) => {
+      collectCountries(Array.from(document.querySelectorAll(candidateSelector))).forEach(
+        (value, key) => {
+          if (!mergedCountries.has(key)) {
+            mergedCountries.set(key, value);
+          }
+        }
+      );
     });
 
-    return Array.from(uniqueCountries.values()).sort((a, b) =>
+    return Array.from(mergedCountries.values()).sort((a, b) =>
       a.name.localeCompare(b.name)
     );
   }, resolution.matchedSelector);

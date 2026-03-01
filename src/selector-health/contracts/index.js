@@ -59,9 +59,9 @@ const CRITICAL_SELECTOR_CONTRACTS = deepFreeze([
       description: "Discover leagues for a selected country slug.",
     },
     selectors: [
-      "#category-left-menu a[href*='/soccer/']",
-      "[class*='lmenu'] a[href*='/soccer/']",
-      "[data-testid*='left'] a[href*='/soccer/']",
+      "#lmenu a.leftMenu__href[href*='/soccer/']",
+      ".leftMenu a.leftMenu__href[href*='/soccer/']",
+      "[class*='lmenu'] a.leftMenu__href[href*='/soccer/']",
     ],
   }),
   createContract({

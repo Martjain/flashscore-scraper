@@ -50,30 +50,50 @@ export const getListOfSeasons = async (context, leagueUrl) => {
     const countrySlug = leagueSegments[1];
     const leagueSlug = leagueSegments[2];
 
-    const candidates = Array.from(document.querySelectorAll(selector));
-    const uniqueSeasons = new Map();
+    const collectSeasons = (elements) => {
+      const uniqueSeasons = new Map();
 
-    candidates.forEach((element) => {
-      const name = element.textContent?.trim().replace(/\s+/g, " ");
-      const segments = toSegments(element.href);
-      if (!name || !element.href || segments.length < 3) return;
-      if (sport && segments[0] !== sport) return;
-      if (countrySlug && segments[1] !== countrySlug) return;
+      elements.forEach((element) => {
+        const name = element.textContent?.trim().replace(/\s+/g, " ");
+        const segments = toSegments(element.href);
+        if (!name || !element.href || segments.length < 3) return;
+        if (sport && segments[0] !== sport) return;
+        if (countrySlug && segments[1] !== countrySlug) return;
 
-      const seasonLeagueSlug = segments[2];
-      if (
-        leagueSlug &&
-        seasonLeagueSlug &&
-        seasonLeagueSlug !== leagueSlug &&
-        !seasonLeagueSlug.startsWith(`${leagueSlug}-`)
-      ) {
-        return;
-      }
+        const seasonLeagueSlug = segments[2];
+        if (
+          leagueSlug &&
+          seasonLeagueSlug &&
+          seasonLeagueSlug !== leagueSlug &&
+          !seasonLeagueSlug.startsWith(`${leagueSlug}-`)
+        ) {
+          return;
+        }
 
-      uniqueSeasons.set(element.href, { name, url: element.href });
+        uniqueSeasons.set(element.href, { name, url: element.href });
+      });
+
+      return uniqueSeasons;
+    };
+
+    const mergedSeasons = new Map();
+    const candidateSelectors = [selector, ".archiveLatte__season > a"];
+    if (sport && countrySlug && leagueSlug) {
+      candidateSelectors.push(`a[href*='/${sport}/${countrySlug}/${leagueSlug}']`);
+    }
+    candidateSelectors.push("a[href*='/soccer/']");
+
+    candidateSelectors.forEach((candidateSelector) => {
+      collectSeasons(Array.from(document.querySelectorAll(candidateSelector))).forEach(
+        (value, key) => {
+          if (!mergedSeasons.has(key)) {
+            mergedSeasons.set(key, value);
+          }
+        }
+      );
     });
 
-    return Array.from(uniqueSeasons.values());
+    return Array.from(mergedSeasons.values());
   }, { selector: resolution.matchedSelector, leagueUrl: normalizedLeagueUrl });
 
   await page.close();
