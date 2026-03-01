@@ -274,3 +274,65 @@ export const parseSmokeReliabilityArguments = (
 
   return options;
 };
+
+export const DEFAULT_RELIABILITY_TREND_LOOKBACK_HOURS = 7 * 24;
+
+const parseNonEmptyPath = (value, flagName) => {
+  const normalized = value?.toString().trim();
+  if (!normalized) {
+    throw Error(`❌ Invalid ${flagName}: expected non-empty file system path`);
+  }
+  return normalized;
+};
+
+export const parseReliabilityTrendArguments = (
+  rawArgs = process.argv.slice(2)
+) => {
+  const options = {
+    lookbackHours: DEFAULT_RELIABILITY_TREND_LOOKBACK_HOURS,
+    smokeDir: null,
+    selectorHealthDir: null,
+    report: null,
+    quiet: false,
+    help: false,
+  };
+
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const arg = rawArgs[index];
+
+    if (parseBooleanFlag(arg, "--quiet")) options.quiet = true;
+    if (arg === "--help" || arg === "-h") options.help = true;
+
+    if (arg === "--lookback-hours" || arg.startsWith("--lookback-hours=")) {
+      const value = parseOptionValue(rawArgs, index, "--lookback-hours");
+      options.lookbackHours = parsePositiveInteger(value, "--lookback-hours");
+      if (arg === "--lookback-hours") index += 1;
+    }
+
+    if (arg === "--smoke-dir" || arg.startsWith("--smoke-dir=")) {
+      const value = parseOptionValue(rawArgs, index, "--smoke-dir");
+      options.smokeDir = parseNonEmptyPath(value, "--smoke-dir");
+      if (arg === "--smoke-dir") index += 1;
+    }
+
+    if (
+      arg === "--selector-health-dir" ||
+      arg.startsWith("--selector-health-dir=")
+    ) {
+      const value = parseOptionValue(rawArgs, index, "--selector-health-dir");
+      options.selectorHealthDir = parseNonEmptyPath(
+        value,
+        "--selector-health-dir"
+      );
+      if (arg === "--selector-health-dir") index += 1;
+    }
+
+    if (arg === "--report" || arg.startsWith("--report=")) {
+      const value = parseOptionValue(rawArgs, index, "--report");
+      options.report = parseNonEmptyPath(value, "--report");
+      if (arg === "--report") index += 1;
+    }
+  }
+
+  return options;
+};
