@@ -144,6 +144,44 @@
 
 ---
 
+## Milestone: v1.4 — Generic Selector Hardening
+
+**Shipped:** 2026-03-01
+**Phases:** 1 | **Plans:** 2 | **Sessions:** 1
+
+### What Was Built
+- Selector-health generic mode (`--generic` / `--pick-any`) with deterministic representative-path probing and explicit target-mode metadata.
+- Selector-health CLI guardrails for ambiguous flag combinations while preserving sample/all execution modes.
+- Hardened country discovery via contract extraction + broad soccer-link fallback merging with slug-level deduplication.
+- Hardened league and season discovery with primary-first extraction and filtered fallback selector passes for layout drift tolerance.
+
+### What Worked
+- Phase-level wave execution kept generic-mode behavior and fallback hardening separable and easy to verify.
+- Focused UAT coverage (6 targeted operator checks) validated both CLI semantics and runtime discovery behavior quickly.
+- Reusing existing selector diagnostics instrumentation preserved observability while hardening extraction paths.
+
+### What Was Inefficient
+- Milestone audit artifact was not created before archival, requiring acceptance of audit debt.
+- No active `.planning/REQUIREMENTS.md` existed at completion time, requiring manual requirements archive reconstruction.
+- Summary one-liner extraction remained inconsistent, requiring manual accomplishment curation for milestone entry quality.
+
+### Patterns Established
+- Generic selector validation should prefer representative-path probing over entity-specific spot checks.
+- Fallback extraction should remain additive but always bounded by route-segment filters (sport/country/league).
+- Operator-facing health summaries should explicitly surface run mode to improve triage speed.
+
+### Key Lessons
+1. Generic mode is only actionable when selector-health output clearly distinguishes representative vs sample/all targeting.
+2. Discovery resilience improves when strict contracts and constrained fallback collectors are paired, not substituted.
+3. Milestone completion quality drops when audit and requirements artifacts are missing, even if implementation verification passes.
+
+### Cost Observations
+- Model mix: 0% opus, 100% sonnet, 0% haiku
+- Sessions: 1
+- Notable: Most time was spent on runtime verification and planning-artifact normalization rather than code churn.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -154,6 +192,7 @@
 | v1.1 | 1 | 2 | Added reliability guardrail stack (selector health + smoke + CI schema gate) |
 | v1.2 | 1 | 3 | Added reliability operations tooling (rerun recovery, alerting, rotating regional coverage) |
 | v1.3 | 1 | 2 | Improved signal quality with alert dedupe controls and trend-summary observability |
+| v1.4 | 1 | 1 | Hardened generic selector workflows and discovery fallbacks with explicit operator mode signaling |
 
 ### Cumulative Quality
 
@@ -163,6 +202,7 @@
 | v1.1 | Selector health + live smoke + CI schedule | Reliability baseline across critical path | 2 (`scripts/health-selectors.mjs`, `scripts/smoke-reliability.mjs`) |
 | v1.2 | Failed-fixture rerun + alert integration + regional rotation checks | Operational reliability coverage and incident response paths | 1 (`src/reliability/smoke/rerun-fixtures.js`) |
 | v1.3 | Dedupe policy checks + trend contract validation + CI trend artifact checks | Signal-quality coverage across suppression and historical trend visibility | 2 (`scripts/reliability-trends.mjs`, `src/reliability/trends/reporting.js`) |
+| v1.4 | Generic-mode CLI/UAT checks + discovery chain runtime validation | Scope-level selector resilience across countries/leagues/seasons | 0 (hardening existing modules) |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -170,3 +210,4 @@
 2. Selector breadth must be bounded to page context to prevent mixed-domain/mixed-league contamination.
 3. Reliability tooling should produce deterministic artifacts and share runtime code paths with production extraction.
 4. Milestone audit artifacts should be generated before archival to reduce manual completion adjustments.
+5. Generic selector workflows need explicit mode semantics in operator output to keep remediation focused at contract scope.
