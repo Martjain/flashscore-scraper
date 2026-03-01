@@ -197,17 +197,18 @@ const extractRunEvents = (run = {}, diagnostics = {}) => {
 };
 
 const aggregateByKey = (events = [], keyName = "fixture") => {
+  const fallbackKey = keyName === "fixture" ? "unknown-fixture" : "unknown-region";
   const map = new Map();
 
   events.forEach((event) => {
-    const key = event[keyName];
+    const key = normalizeKey(event[keyName], fallbackKey);
     const current = map.get(key) || {
       [keyName]: key,
       runs: 0,
       failedRuns: 0,
       failureCount: 0,
       sources: new Set(),
-      region: keyName === "fixture" ? event.region : undefined,
+      ...(keyName === "fixture" ? { region: event.region } : {}),
     };
 
     current.runs += 1;
@@ -234,7 +235,7 @@ const aggregateByKey = (events = [], keyName = "fixture") => {
       if (right.failureCount !== left.failureCount) {
         return right.failureCount - left.failureCount;
       }
-      return left[keyName].localeCompare(right[keyName]);
+      return left[keyName].toString().localeCompare(right[keyName].toString());
     });
 };
 
@@ -276,4 +277,3 @@ export const aggregateReliabilityTrendData = (history = {}) => {
     },
   };
 };
-
