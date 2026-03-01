@@ -1,5 +1,24 @@
 # Milestones
 
+## v1.3 Reliability Signal Quality (Shipped: 2026-03-01)
+
+**Phases completed:** 2 phases, 4 plans, 12 tasks
+**Execution stats:** 18 commits, 25 files changed, +2506/-72 lines, ~42 minutes execution window
+
+**Key accomplishments:**
+- Added signature-based alert deduplication policy evaluation with cooldown windows and suppression-aware emit flow.
+- Persisted alert dedupe audit rollups in smoke and selector-health artifacts for operator troubleshooting.
+- Built reliability trend history loading, signature normalization, and deterministic fixture/region aggregation.
+- Added operator command `npm run trend:reliability` with validated lookback window and artifact path controls.
+- Persisted trend artifacts (`latest` + history retention) and integrated CI generation/upload for every workflow run.
+- Documented trend contract fields and diagnostics interpretation for local/CI investigations.
+
+### Known Gaps
+
+- No dedicated milestone audit file (`.planning/v1.3-MILESTONE-AUDIT.md`) was generated before archival; milestone accepted as shipped based on complete phase summaries and verification evidence.
+
+---
+
 ## v1.2 Reliability Operations (Shipped: 2026-02-28)
 
 **Phases completed:** 3 phases, 6 plans, 18 tasks

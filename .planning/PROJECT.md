@@ -2,20 +2,11 @@
 
 ## What This Is
 
-FlashscoreScraping is a Node.js + Playwright CLI for extracting soccer match data from Flashscore USA into reusable JSON/CSV outputs, with reliability guardrails (selector health probes, smoke automation, schema gates, failed-fixture reruns, and failure alerts).
+FlashscoreScraping is a Node.js + Playwright CLI for extracting soccer match data from Flashscore USA into reusable JSON/CSV outputs, with reliability guardrails (selector health probes, smoke automation, schema gates, failed-fixture reruns, failure alerts, and reliability trend summaries).
 
 ## Core Value
 
 Users can reliably extract structured league match results and statistics into reusable local data files with stable schema contracts.
-
-## Current Milestone: v1.3 Reliability Signal Quality
-
-**Goal:** Improve reliability signal quality so operators receive fewer duplicate alerts and can quickly spot degradation trends.
-
-**Target features:**
-- Alert deduplication/cooldown policies for repeated failures (`RELY-10`)
-- Failure trend summaries by fixture and region over time (`RELY-11`)
-- Milestone-scoped roadmap that keeps current CLI/runtime contracts stable
 
 ## Current State
 
@@ -23,11 +14,19 @@ Users can reliably extract structured league match results and statistics into r
   - v1.0 Flashscore USA Migration (2026-02-28)
   - v1.1 Reliability Hardening (2026-02-28)
   - v1.2 Reliability Operations (2026-02-28)
+  - v1.3 Reliability Signal Quality (2026-03-01)
 - **Key commands and workflows:**
   - `npm run validate:schema`
   - `npm run health:selectors`
   - `npm run smoke:reliability`
+  - `npm run trend:reliability`
   - CI workflow: `.github/workflows/reliability-smoke.yml`
+
+## Next Milestone Goals
+
+- Define v1.4 requirements and roadmap scope (`$gsd-new-milestone`).
+- Prioritize reliability consumption experience (for example dashboard or richer trend analysis workflows).
+- Evaluate escalation-channel strategy beyond single-webhook failure notifications.
 
 ## Requirements
 
@@ -46,24 +45,26 @@ Users can reliably extract structured league match results and statistics into r
 - ✓ **RELY-07**: Failed-fixture rerun mode from latest smoke artifact — v1.2
 - ✓ **RELY-08**: Failure alerts with actionable run context — v1.2
 - ✓ **RELY-09**: Rotating extended regional smoke matrix for scheduled coverage — v1.2
+- ✓ **RELY-10**: Operator can configure alert deduplication/cooldown policies to suppress repeated notifications for the same failure signature — v1.3
+- ✓ **RELY-11**: Operator can generate failure trend summaries by fixture and region across a selectable lookback window — v1.3
 
 ### Active
 
-- [ ] **RELY-10**: Operator can configure alert deduplication/cooldown policies to suppress repeated notifications for the same failure signature.
-- [ ] **RELY-11**: Operator can generate failure trend summaries by fixture and region across a selectable lookback window.
+- [ ] **RELY-12**: Operator can configure multi-channel escalation policies (for example warning vs critical destinations).
+- [ ] **RELY-13**: Operator can view reliability trend history in a dedicated dashboard UI.
 
 ### Out of Scope
 
 - Multi-sport expansion beyond current soccer scope
 - Framework rewrite away from Node.js + Playwright
-- Full web dashboard productization in this milestone
 - Autonomous selector self-healing without explicit review
+- Real-time streaming alerts per fixture event (deferred while signal quality baseline matures)
 
 ## Context
 
 - Architecture: CLI orchestration + service modules (`countries`, `leagues`, `seasons`, `matches`) + reliability modules
-- Reliability artifacts: `.planning/artifacts/selector-health/`, `.planning/artifacts/smoke/`
-- Operational emphasis: schema compatibility, selector drift detection, failure recovery, proactive alerts, deterministic coverage rotation, and signal quality controls
+- Reliability artifacts: `.planning/artifacts/selector-health/`, `.planning/artifacts/smoke/`, `.planning/artifacts/reliability-trends/`
+- Operational emphasis: schema compatibility, selector drift detection, failure recovery, proactive alerting, deterministic coverage rotation, and trend diagnostics
 
 ## Constraints
 
@@ -83,7 +84,7 @@ Users can reliably extract structured league match results and statistics into r
 | Enforce schema validation as required live-smoke gate | Prevent false-positive smoke passes on contract drift | ✓ Adopted in v1.1 |
 | Use one smoke command for local and CI | Avoid behavior drift across environments | ✓ Adopted in v1.1 |
 | Keep v1.2 focused on operational reliability (rerun/alerting/matrix) | Increase signal and recovery speed without architecture churn | ✓ Adopted in v1.2 |
-| Keep v1.3 focused on signal quality (dedupe + trend visibility) | Reduce alert fatigue and expose failure patterns before adding new reliability surfaces | — Pending |
+| Keep v1.3 focused on signal quality (dedupe + trend visibility) | Reduce alert fatigue and expose failure patterns before adding new reliability surfaces | ✓ Adopted in v1.3 |
 
 ---
-*Last updated: 2026-02-28 after v1.3 milestone kickoff*
+*Last updated: 2026-03-01 after v1.3 milestone completion*
