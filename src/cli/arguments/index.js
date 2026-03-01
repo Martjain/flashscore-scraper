@@ -93,6 +93,15 @@ const parsePositiveInteger = (value, flagName) => {
   return parsed;
 };
 
+const parseSelectorHealthSample = (value) => {
+  const normalized = value?.toString().trim().toLowerCase();
+  if (normalized === "all" || normalized === "*") {
+    return null;
+  }
+
+  return parsePositiveInteger(value, "--sample");
+};
+
 const parseBooleanFlag = (arg, flagName) =>
   arg === flagName || arg.startsWith(`${flagName}=`);
 
@@ -111,7 +120,8 @@ const parseSmokeMatrixMode = (value, sourceLabel) => {
 export const parseSelectorHealthArguments = (rawArgs = process.argv.slice(2)) => {
   const options = {
     scopes: [...SUPPORTED_SELECTOR_HEALTH_SCOPES],
-    sample: 1,
+    sample: null,
+    pickAny: false,
     strict: false,
     failFast: false,
     dryRun: false,
@@ -120,15 +130,36 @@ export const parseSelectorHealthArguments = (rawArgs = process.argv.slice(2)) =>
     help: false,
   };
   const scopes = [];
+  let sampleProvided = false;
 
   for (let index = 0; index < rawArgs.length; index += 1) {
     const arg = rawArgs[index];
+    let recognized = false;
 
-    if (arg === "--strict") options.strict = true;
-    if (arg === "--fail-fast") options.failFast = true;
-    if (arg === "--dry-run") options.dryRun = true;
-    if (arg === "--quiet") options.quiet = true;
-    if (arg === "--help" || arg === "-h") options.help = true;
+    if (arg === "--strict") {
+      options.strict = true;
+      recognized = true;
+    }
+    if (arg === "--fail-fast") {
+      options.failFast = true;
+      recognized = true;
+    }
+    if (arg === "--dry-run") {
+      options.dryRun = true;
+      recognized = true;
+    }
+    if (arg === "--quiet") {
+      options.quiet = true;
+      recognized = true;
+    }
+    if (arg === "--help" || arg === "-h") {
+      options.help = true;
+      recognized = true;
+    }
+    if (arg === "--pick-any" || arg === "--generic") {
+      options.pickAny = true;
+      recognized = true;
+    }
 
     if (arg === "--scope" || arg.startsWith("--scope=")) {
       const value = parseOptionValue(rawArgs, index, "--scope");
@@ -138,17 +169,28 @@ export const parseSelectorHealthArguments = (rawArgs = process.argv.slice(2)) =>
         .filter(Boolean)
         .forEach((scope) => scopes.push(scope));
       if (arg === "--scope") index += 1;
+      recognized = true;
     }
 
     if (arg === "--sample" || arg.startsWith("--sample=")) {
       const value = parseOptionValue(rawArgs, index, "--sample");
-      options.sample = parsePositiveInteger(value, "--sample");
+      options.sample = parseSelectorHealthSample(value);
+      sampleProvided = true;
       if (arg === "--sample") index += 1;
+      recognized = true;
     }
 
     if (arg === "--report" || arg.startsWith("--report=")) {
       options.report = parseOptionValue(rawArgs, index, "--report");
       if (arg === "--report") index += 1;
+      recognized = true;
+    }
+
+    if (!recognized) {
+      throw Error(
+        `❌ Unknown option: "${arg}"\n` +
+          `Usage example: npm run health:selectors -- --scope leagues`
+      );
     }
   }
 
@@ -165,6 +207,10 @@ export const parseSelectorHealthArguments = (rawArgs = process.argv.slice(2)) =>
     }
 
     options.scopes = Array.from(new Set(scopes));
+  }
+
+  if (options.pickAny && sampleProvided) {
+    throw Error("❌ --pick-any cannot be combined with --sample");
   }
 
   return options;

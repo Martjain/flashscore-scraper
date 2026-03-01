@@ -18,12 +18,19 @@ const getFailedChecks = (scopeResults = []) =>
 
 export const printSelectorHealthSummary = (result, options = {}) => {
   const quiet = Boolean(options.quiet);
+  const targetMode = result.targetMode || "all";
+  const sampleLabel =
+    Number.isInteger(result.sample) && result.sample > 0 ? result.sample : "all";
 
   if (!quiet) {
     console.info("Selector Health Check");
     console.info(`Mode: ${result.mode}`);
     console.info(`Scopes: ${result.scopes.join(", ")}`);
-    console.info(`Sample per scope: ${result.sample}`);
+    if (targetMode === "any") {
+      console.info("Target mode: generic (representative discovered path)");
+    } else {
+      console.info(`Sample per scope: ${sampleLabel}`);
+    }
     console.info(`Critical failures: ${result.criticalFailures}`);
     console.info(`Warnings: ${result.warnings}`);
     console.info(`Fallback usages: ${result.fallbackUsages}`);

@@ -14,7 +14,9 @@ Usage:
 
 Options:
   --scope <name>      Scope to probe (repeatable): countries, leagues, seasons, match-list, match-detail
-  --sample <n>        Probe sample size per scope (default: 1)
+  --sample <n|all>    Probe sample size per scope (default: all discovered targets)
+  --generic, --pick-any
+                      Probe one representative discovered target per scope (generic selector workflow)
   --strict            Fail when fallback selectors are used
   --fail-fast         Stop after first failing check
   --dry-run           Resolve planned probes without opening browser pages
@@ -49,7 +51,15 @@ const buildSelectorRunnerFailure = (error, options = {}) => {
     strict: Boolean(options.strict),
     failFast: Boolean(options.failFast),
     dryRun: Boolean(options.dryRun),
-    sample: Number.isInteger(options.sample) && options.sample > 0 ? options.sample : 1,
+    sample:
+      Number.isInteger(options.sample) && options.sample > 0
+        ? options.sample
+        : null,
+    targetMode: options.pickAny
+      ? "any"
+      : Number.isInteger(options.sample) && options.sample > 0
+        ? "sample"
+        : "all",
     scopes,
     checks: 1,
     criticalFailures: 1,
@@ -240,7 +250,8 @@ const run = async () => {
   let context;
   let options = {
     scopes: [...DEFAULT_SCOPES],
-    sample: 1,
+    sample: null,
+    pickAny: false,
     strict: false,
     failFast: false,
     dryRun: false,
@@ -265,6 +276,7 @@ const run = async () => {
       context,
       scopes: options.scopes,
       sample: options.sample,
+      pickAny: options.pickAny,
       strict: options.strict,
       failFast: options.failFast,
       dryRun: options.dryRun,

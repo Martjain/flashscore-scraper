@@ -10,7 +10,6 @@ import {
 import { resolveSelector } from "../probe/resolveSelector.js";
 import { collectProbeDiagnostics } from "../probe/collectProbeDiagnostics.js";
 
-const DEFAULT_SAMPLE_SIZE = 1;
 const DEFAULT_SCOPE_ORDER = Object.freeze([
   SELECTOR_HEALTH_SCOPES.COUNTRIES,
   SELECTOR_HEALTH_SCOPES.LEAGUES,
@@ -40,8 +39,34 @@ const uniqueByUrl = (targets) => {
   });
 };
 
-const normalizeSample = (sample) =>
-  Number.isInteger(sample) && sample > 0 ? sample : DEFAULT_SAMPLE_SIZE;
+const hasSampleLimit = (sample) => Number.isInteger(sample) && sample > 0;
+
+const normalizeSample = (sample) => (hasSampleLimit(sample) ? sample : null);
+
+const normalizeSelectionSeed = (seed) => {
+  const parsed = Number(seed);
+  if (Number.isInteger(parsed) && parsed >= 0) return parsed;
+  return Date.now();
+};
+
+const getSelectionIndex = (size, label, selectionSeed) => {
+  if (!Number.isInteger(size) || size <= 0) return -1;
+  const source = `${label}:${size}`;
+  let hash = selectionSeed >>> 0;
+
+  for (let index = 0; index < source.length; index += 1) {
+    hash = (hash * 33 + source.charCodeAt(index)) >>> 0;
+  }
+
+  return hash % size;
+};
+
+const pickAnyValue = (values, label, selectionSeed) => {
+  if (!Array.isArray(values) || values.length === 0) return null;
+  const index = getSelectionIndex(values.length, label, selectionSeed);
+  if (index < 0) return null;
+  return values[index] ?? null;
+};
 
 const normalizeScopes = (scopes) => {
   const requested = Array.isArray(scopes) && scopes.length ? scopes : DEFAULT_SCOPE_ORDER;
@@ -85,18 +110,44 @@ const getCountries = async (context) => {
     : [];
 };
 
+const getCountryLeagueUrls = async (context, countryId) => {
+  const list = await getListOfLeagues(context, countryId);
+  if (!Array.isArray(list)) return [];
+
+  return list
+    .filter((league) => league?.url)
+    .map((league) => league.url.replace(/\/+$/, ""));
+};
+
+const getLeagueSeasonUrls = async (context, leagueUrl) => {
+  const list = await getListOfSeasons(context, leagueUrl);
+  if (!Array.isArray(list)) return [];
+
+  return list
+    .filter((season) => season?.url)
+    .map((season) => season.url.replace(/\/+$/, ""));
+};
+
+const getSeasonMatchUrls = async (context, seasonUrl) => {
+  const list = await getMatchLinks(context, seasonUrl, "results");
+  if (!Array.isArray(list)) return [];
+
+  return list.filter((match) => match?.url).map((match) => match.url);
+};
+
 const getLeagues = async (context, countryIds, sample) => {
   const leagues = [];
+  const limited = hasSampleLimit(sample);
 
   for (const countryId of countryIds) {
-    if (leagues.length >= sample) break;
+    if (limited && leagues.length >= sample) break;
     const list = await getListOfLeagues(context, countryId);
     if (!Array.isArray(list)) continue;
 
     for (const league of list) {
       if (!league?.url) continue;
       leagues.push(league.url.replace(/\/+$/, ""));
-      if (leagues.length >= sample) break;
+      if (limited && leagues.length >= sample) break;
     }
   }
 
@@ -105,16 +156,17 @@ const getLeagues = async (context, countryIds, sample) => {
 
 const getSeasons = async (context, leagueUrls, sample) => {
   const seasons = [];
+  const limited = hasSampleLimit(sample);
 
   for (const leagueUrl of leagueUrls) {
-    if (seasons.length >= sample) break;
+    if (limited && seasons.length >= sample) break;
     const list = await getListOfSeasons(context, leagueUrl);
     if (!Array.isArray(list)) continue;
 
     for (const season of list) {
       if (!season?.url) continue;
       seasons.push(season.url.replace(/\/+$/, ""));
-      if (seasons.length >= sample) break;
+      if (limited && seasons.length >= sample) break;
     }
   }
 
@@ -123,16 +175,17 @@ const getSeasons = async (context, leagueUrls, sample) => {
 
 const getMatchUrls = async (context, seasonUrls, sample) => {
   const matches = [];
+  const limited = hasSampleLimit(sample);
 
   for (const seasonUrl of seasonUrls) {
-    if (matches.length >= sample) break;
+    if (limited && matches.length >= sample) break;
     const list = await getMatchLinks(context, seasonUrl, "results");
     if (!Array.isArray(list)) continue;
 
     for (const match of list) {
       if (!match?.url) continue;
       matches.push(match.url);
-      if (matches.length >= sample) break;
+      if (limited && matches.length >= sample) break;
     }
   }
 
@@ -144,16 +197,23 @@ const getSeedMatchUrls = async (context, sample) => {
     const list = await getMatchLinks(context, MATCH_DETAIL_SEED_LEAGUE_URL, "results");
     if (!Array.isArray(list)) return [];
 
-    return list
+    const urls = list
       .filter((match) => match?.url)
-      .map((match) => match.url)
-      .slice(0, sample);
+      .map((match) => match.url);
+    return hasSampleLimit(sample) ? urls.slice(0, sample) : urls;
   } catch {
     return [];
   }
 };
 
-const buildScopeTargets = async ({ context, scope, sample, dryRun }) => {
+const buildScopeTargets = async ({
+  context,
+  scope,
+  sample,
+  dryRun,
+  pickAny,
+  selectionSeed,
+}) => {
   const contract = CONTRACT_BY_SCOPE.get(scope);
   if (!contract) return [];
 
@@ -172,8 +232,31 @@ const buildScopeTargets = async ({ context, scope, sample, dryRun }) => {
 
   const countryIds = await getCountries(context);
   if (scope === SELECTOR_HEALTH_SCOPES.LEAGUES) {
+    if (pickAny) {
+      const representativeCountryId = pickAnyValue(
+        countryIds,
+        "representative-country",
+        selectionSeed
+      );
+      if (!representativeCountryId) {
+        return getStaticTargets(scope, contract);
+      }
+
+      return [
+        {
+          scope,
+          contract,
+          url: `${BASE_URL}/soccer/${representativeCountryId}/`,
+          source: "country-discovery:any",
+        },
+      ];
+    }
+
+    const selectedCountryIds = hasSampleLimit(sample)
+      ? countryIds.slice(0, sample)
+      : countryIds;
     const targets = uniqueByUrl(
-      countryIds.slice(0, sample).map((countryId) => ({
+      selectedCountryIds.map((countryId) => ({
         scope,
         contract,
         url: `${BASE_URL}/soccer/${countryId}/`,
@@ -183,8 +266,41 @@ const buildScopeTargets = async ({ context, scope, sample, dryRun }) => {
     return targets.length > 0 ? targets : getStaticTargets(scope, contract);
   }
 
-  const leagues = await getLeagues(context, countryIds, sample);
+  let leagues = [];
+  if (pickAny) {
+    const representativeCountryId = pickAnyValue(
+      countryIds,
+      "representative-country",
+      selectionSeed
+    );
+    if (representativeCountryId) {
+      leagues = await getCountryLeagueUrls(context, representativeCountryId);
+    }
+  } else {
+    leagues = await getLeagues(context, countryIds, sample);
+  }
+
   if (scope === SELECTOR_HEALTH_SCOPES.SEASONS) {
+    if (pickAny) {
+      const representativeLeagueUrl = pickAnyValue(
+        leagues,
+        "representative-league",
+        selectionSeed
+      );
+      if (!representativeLeagueUrl) {
+        return getStaticTargets(scope, contract);
+      }
+
+      return [
+        {
+          scope,
+          contract,
+          url: `${representativeLeagueUrl}/archive`,
+          source: "league-discovery:any",
+        },
+      ];
+    }
+
     const targets = uniqueByUrl(
       leagues.map((leagueUrl) => ({
         scope,
@@ -196,8 +312,41 @@ const buildScopeTargets = async ({ context, scope, sample, dryRun }) => {
     return targets.length > 0 ? targets : getStaticTargets(scope, contract);
   }
 
-  const seasons = await getSeasons(context, leagues, sample);
+  let seasons = [];
+  if (pickAny) {
+    const representativeLeagueUrl = pickAnyValue(
+      leagues,
+      "representative-league",
+      selectionSeed
+    );
+    if (representativeLeagueUrl) {
+      seasons = await getLeagueSeasonUrls(context, representativeLeagueUrl);
+    }
+  } else {
+    seasons = await getSeasons(context, leagues, sample);
+  }
+
   if (scope === SELECTOR_HEALTH_SCOPES.MATCH_LIST) {
+    if (pickAny) {
+      const representativeSeasonUrl = pickAnyValue(
+        seasons,
+        "representative-season",
+        selectionSeed
+      );
+      if (!representativeSeasonUrl) {
+        return getStaticTargets(scope, contract);
+      }
+
+      return [
+        {
+          scope,
+          contract,
+          url: `${representativeSeasonUrl}/results`,
+          source: "season-discovery:any",
+        },
+      ];
+    }
+
     const targets = uniqueByUrl(
       seasons.map((seasonUrl) => ({
         scope,
@@ -209,11 +358,44 @@ const buildScopeTargets = async ({ context, scope, sample, dryRun }) => {
     return targets.length > 0 ? targets : getStaticTargets(scope, contract);
   }
 
-  let matches = await getMatchUrls(context, seasons, sample);
+  let matches = [];
+  if (pickAny) {
+    const representativeSeasonUrl = pickAnyValue(
+      seasons,
+      "representative-season",
+      selectionSeed
+    );
+    if (representativeSeasonUrl) {
+      matches = await getSeasonMatchUrls(context, representativeSeasonUrl);
+    }
+  } else {
+    matches = await getMatchUrls(context, seasons, sample);
+  }
+
   if (matches.length === 0) {
-    matches = await getSeedMatchUrls(context, sample);
+    matches = await getSeedMatchUrls(context, pickAny ? 1 : sample);
   }
   if (scope === SELECTOR_HEALTH_SCOPES.MATCH_DETAIL) {
+    if (pickAny) {
+      const representativeMatchUrl = pickAnyValue(
+        matches,
+        "representative-match",
+        selectionSeed
+      );
+      if (!representativeMatchUrl) {
+        return getStaticTargets(scope, contract);
+      }
+
+      return [
+        {
+          scope,
+          contract,
+          url: representativeMatchUrl,
+          source: "match-discovery:any",
+        },
+      ];
+    }
+
     const targets = uniqueByUrl(
       matches.map((matchUrl) => ({
         scope,
@@ -379,11 +561,15 @@ export const runSelectorHealthCheck = async (options = {}) => {
   const strict = Boolean(options.strict);
   const failFast = Boolean(options.failFast);
   const dryRun = Boolean(options.dryRun);
+  const pickAny = Boolean(options.pickAny);
+  const selectionSeed = normalizeSelectionSeed(options.selectionSeed);
   const sample = normalizeSample(options.sample);
   const scopes = normalizeScopes(options.scopes);
   const runMetrics = initializeRunMetrics();
   const scopeResults = [];
   let halt = false;
+
+  const limited = hasSampleLimit(sample);
 
   for (const scope of scopes) {
     if (halt) break;
@@ -397,6 +583,8 @@ export const runSelectorHealthCheck = async (options = {}) => {
       scope,
       sample,
       dryRun,
+      pickAny,
+      selectionSeed,
     });
 
     if (targets.length === 0) {
@@ -413,7 +601,8 @@ export const runSelectorHealthCheck = async (options = {}) => {
       continue;
     }
 
-    for (const target of targets.slice(0, sample)) {
+    const targetsToProbe = limited ? targets.slice(0, sample) : targets;
+    for (const target of targetsToProbe) {
       if (dryRun) {
         const check = buildDryRunCheck(scope, contract, target.url);
         scopeMetrics.checks.push(check);
@@ -439,6 +628,7 @@ export const runSelectorHealthCheck = async (options = {}) => {
   }
 
   const durationMs = Date.now() - startedAt.getTime();
+  const targetMode = pickAny ? "any" : limited ? "sample" : "all";
   const result = dryRun
     ? "pass"
     : runMetrics.criticalFailures > 0 || (strict && runMetrics.fallbackUsages > 0)
@@ -455,6 +645,8 @@ export const runSelectorHealthCheck = async (options = {}) => {
     failFast,
     dryRun,
     sample,
+    targetMode,
+    selectionSeed: pickAny ? selectionSeed : null,
     scopes,
     checks: runMetrics.checks,
     criticalFailures: runMetrics.criticalFailures,
