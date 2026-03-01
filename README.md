@@ -2,7 +2,7 @@
 
 Playwright-based scraping and reliability tooling for extracting soccer match data from `flashscoreusa.com` with stable schema and CI smoke coverage.
 
-Current release: `v1.2.0` (Reliability Operations), shipped on 2026-02-28.
+Current release: `v1.4.0` (Reliability Signal Quality), shipped on 2026-03-01.
 
 ## Fork Notice
 

@@ -2,6 +2,32 @@
 
 All notable changes to this project are documented in this file.
 
+## [v1.4.0] - 2026-03-01
+
+### Added
+
+- Alert signal quality controls for reliability failures:
+  - Signature-based deduplication policy evaluation with cooldown windows
+  - Source-aware suppression and post-cooldown emission summaries
+  - Dedupe audit rollups persisted in smoke and selector-health artifacts
+- Reliability trend summary subsystem:
+  - History loader for smoke + selector-health artifacts with lookback filtering
+  - Deterministic fixture/region aggregation with grouped counts and failure rates
+  - Operator command `npm run trend:reliability` with validated `--lookback-hours`
+  - Trend artifact persistence under `.planning/artifacts/reliability-trends/` (`latest` + timestamped history)
+- CI reliability workflow trend integration:
+  - Generates trend summaries on every workflow run
+  - Uploads dedicated reliability trend artifact bundle
+
+### Changed
+
+- README updated with trend command usage, contract fields, diagnostics interpretation, and CI artifact behavior.
+- Reliability workflow now uploads both smoke artifacts and reliability trend artifacts with `if: always()`.
+
+### Fixed
+
+- Aggregation key handling now preserves deterministic fixture/region sorting in sparse-history scenarios.
+
 ## [v1.2.0] - 2026-02-28
 
 ### Added
