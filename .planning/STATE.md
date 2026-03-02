@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Generic Selector Hardening
 status: unknown
-stopped_at: Completed v1.4 milestone
-last_updated: "2026-03-01T19:07:31Z"
+stopped_at: Session resumed; proceeding to $gsd-new-milestone
+last_updated: "2026-03-02T14:57:11Z"
 progress:
   total_phases: 9
   completed_phases: 9
@@ -75,6 +75,6 @@ None currently.
 
 ## Session Continuity
 
-**Last session:** 2026-03-01T17:46:32.765Z
-**Stopped at:** Completed v1.4 milestone
-**Resume file:** None
+**Last session:** 2026-03-02T14:57:11Z
+**Stopped at:** Session resumed, proceeding to `$gsd-new-milestone`
+**Resume file:** .planning/phases/09-generic-selector-workflow-and-fallback-hardening/.continue-here.md

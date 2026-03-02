@@ -2,7 +2,7 @@
 
 Playwright-based scraping and reliability tooling for extracting soccer match data from `flashscoreusa.com` with stable schema and CI smoke coverage.
 
-Current release: `v1.4.0` (Reliability Signal Quality), shipped on 2026-03-01.
+Current release: `v1.4.0` (Generic Selector Hardening), shipped on 2026-03-01.
 
 ## Fork Notice
 
@@ -89,6 +89,18 @@ Run contract probes for selected scopes:
 ```bash
 npm run health:selectors -- --scope countries --scope leagues --sample 1
 ```
+
+Run generic representative-path mode (one deterministic path per scope chain):
+
+```bash
+npm run health:selectors -- --dry-run --scope countries --scope leagues --scope seasons --generic
+```
+
+Generic aliases and guardrails:
+
+- `--generic` and `--pick-any` are equivalent.
+- `--generic` cannot be combined with `--sample`.
+- Selector-health output explicitly reports `Target mode: generic (representative discovered path)` when enabled.
 
 Strict mode (fails on fallback selector usage):
 

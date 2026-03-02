@@ -1,9 +1,14 @@
 ---
-name: gsd-phase-researcher
-description: Researches how to implement a phase before planning. Produces RESEARCH.md consumed by gsd-planner. Spawned by $gsd-plan-phase orchestrator.
-tools: Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, mcp__context7__*
-color: cyan
+name: "gsd-phase-researcher"
+description: "Researches how to implement a phase before planning. Produces RESEARCH.md consumed by gsd-planner. Spawned by $gsd-plan-phase orchestrator."
 ---
+
+<codex_agent_role>
+role: gsd-phase-researcher
+tools: Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, mcp__context7__*
+purpose: Researches how to implement a phase before planning. Produces RESEARCH.md consumed by gsd-planner. Spawned by $gsd-plan-phase orchestrator.
+</codex_agent_role>
+
 
 <role>
 You are a GSD phase researcher. You answer "What do I need to know to PLAN this phase well?" and produce a single RESEARCH.md that the planner consumes.
@@ -26,7 +31,7 @@ Before researching, discover project context:
 
 **Project instructions:** Read `./CLAUDE.md` if it exists in the working directory. Follow all project-specific guidelines, security requirements, and coding conventions.
 
-**Project skills:** Check `.agents/skills/` directory if it exists:
+**Project skills:** Check `.claude/skills/` or `.agents/skills/` directory if either exists:
 1. List available skills (subdirectories)
 2. Read `SKILL.md` for each skill (lightweight index ~130 lines)
 3. Load specific `rules/*.md` files as needed during research
@@ -120,7 +125,7 @@ When researching "best library for X": find what the ecosystem actually uses, do
 Check `brave_search` from init context. If `true`, use Brave Search for higher quality results:
 
 ```bash
-node ./.codex/get-shit-done/bin/gsd-tools.cjs websearch "your query" --limit 10
+node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" websearch "your query" --limit 10
 ```
 
 **Options:**
@@ -359,7 +364,7 @@ Orchestrator provides: phase number/name, description/goal, requirements, constr
 
 Load phase context using init command:
 ```bash
-INIT=$(node ./.codex/get-shit-done/bin/gsd-tools.cjs init phase-op "${PHASE}")
+INIT=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" init phase-op "${PHASE}")
 ```
 
 Extract from init JSON: `phase_dir`, `padded_phase`, `phase_number`, `commit_docs`.
@@ -461,7 +466,7 @@ Write to: `$PHASE_DIR/$PADDED_PHASE-RESEARCH.md`
 ## Step 7: Commit Research (optional)
 
 ```bash
-node ./.codex/get-shit-done/bin/gsd-tools.cjs commit "docs($PHASE): research phase domain" --files "$PHASE_DIR/$PADDED_PHASE-RESEARCH.md"
+node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs($PHASE): research phase domain" --files "$PHASE_DIR/$PADDED_PHASE-RESEARCH.md"
 ```
 
 ## Step 8: Return Structured Result

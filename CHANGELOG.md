@@ -6,6 +6,29 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Generic selector-health execution mode:
+  - Added `--generic` / `--pick-any` flags for representative-path selector validation
+  - Deterministic representative target selection with propagated `targetMode` and `selectionSeed` metadata
+  - Explicit operator output for generic mode in selector-health reporting
+- Generic discovery fallback hardening:
+  - Country discovery merges strict contract extraction with filtered `/soccer/` fallback anchors
+  - League/season discovery now runs primary-first with fallback selector passes on empty primary results
+  - Shared league selector contract narrowed to league-specific anchor patterns
+
+### Changed
+
+- README updated with generic selector mode usage and guardrail examples.
+- Selector-health diagnostics now expose clearer target-mode semantics for operator triage.
+
+### Fixed
+
+- Reduced false selector-health confidence caused by partial menu visibility during country/league/season discovery.
+- Hardened fallback paths to preserve resilient extraction under layout/container drift.
+
+## [v1.3.0] - 2026-03-01
+
+### Added
+
 - Alert signal quality controls for reliability failures:
   - Signature-based deduplication policy evaluation with cooldown windows
   - Source-aware suppression and post-cooldown emission summaries
